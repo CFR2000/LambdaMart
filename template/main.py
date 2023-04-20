@@ -13,7 +13,7 @@ def strong(s):
 
 intro = f"""\n\n\
 This command will create a new vendor for you in {strong(os.path.abspath(os.curdir))}\
-with the values you provide in this setup. {strong("Let's answer some questions:")}\
+with the values you provide in this setup. {strong("Let's answer some questions:")}\n\
 """
 
 if __name__ == "__main__":
@@ -60,4 +60,6 @@ if __name__ == "__main__":
     with open(get_path(f"{internal_name}.db.yaml", k8s_path), "w") as fp:
         fp.write(get_k8_db(name, internal_name))
 
-    print(f"Created template for {name} in {internal_name}")
+    print(f"\nCreated template for {name} in {strong(os.path.abspath(internal_name))}")
+
+    print(f"\n{Style.BRIGHT}{Fore.CYAN}Happy distributing{Style.RESET_ALL}")
