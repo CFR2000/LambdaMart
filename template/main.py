@@ -12,7 +12,7 @@ def strong(s):
 
 
 intro = f"""\n\n\
-This command will create a new vendor for you in {strong(os.path.abspath(os.curdir))}\
+This command will create a new vendor for you in {strong(os.path.abspath(os.curdir))} \
 with the values you provide in this setup. {strong("Let's answer some questions:")}\n\
 """
 
