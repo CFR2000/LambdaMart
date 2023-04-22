@@ -13,7 +13,6 @@ type Product {
   coarse_class_name: String!
   coarse_class_id: Int!
   iconic_image_path: String!
-  product_description_path: String!
   #? or maybe just put in the description
 }
 

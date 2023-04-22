@@ -27,6 +27,6 @@ Temporary Items
 .apdisk
 
 # Python
-__pycache__/
-build/
-dist/
+**/__pycache__/
+**/build/
+**/dist/
