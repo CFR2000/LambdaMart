@@ -1,0 +1,16 @@
+type InventoryItem {
+  id: ID!
+  stock_level: Int!
+}
+
+type Vendor {
+  title: String!
+  description: String!
+  icon: String!
+  inventory: [InventoryItem!]!
+}
+
+type Query {
+  vendor: Vendor
+  item(id: ID!): InventoryItem
+}
