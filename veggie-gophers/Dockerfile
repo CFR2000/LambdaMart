@@ -1,18 +1,16 @@
-# veggie-gophers/Dockerfile
-FROM golang:1.20 AS builder
+FROM golang:1.20
 
 WORKDIR /app
 
 COPY go.mod go.sum ./
+
 RUN go mod download
 
 COPY . .
-RUN go build -o veggie-gophers
 
-FROM gcr.io/distroless/base-debian10
+RUN go build -o main .
 
-COPY --from=builder /app/veggie-gophers /app/veggie-gophers
+COPY wait-for-postgres.sh wait-for-postgres.sh
+RUN chmod +x wait-for-postgres.sh
 
-EXPOSE 8080
-
-ENTRYPOINT ["/app/veggie-gophers"]
+CMD ["./wait-for-postgres.sh", "veggie-gophers-db:5432", "./main"]

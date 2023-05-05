@@ -29,3 +29,8 @@ type Vendor {
   #? How would this work?
   # ...
 }
+
+type Query {
+  vendor: Vendor
+  item(id: ID!): InventoryItem
+}
