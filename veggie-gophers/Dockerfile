@@ -10,7 +10,8 @@ COPY . .
 
 RUN go build -o main .
 
-COPY wait-for-postgres.sh wait-for-postgres.sh
-RUN chmod +x wait-for-postgres.sh
+# COPY wait-for-postgres.sh wait-for-postgres.sh
+# RUN chmod +x wait-for-postgres.sh
 
-CMD ["./wait-for-postgres.sh", "veggie-gophers-db:5432", "./main"]
+# CMD ["./wait-for-postgres.sh", "veggie-gophers-db:5432", "./main"]
+CMD ["./main"]

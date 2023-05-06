@@ -1,5 +1,5 @@
 CREATE TABLE inventory_items (
-    id SERIAL PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     stock_level INTEGER NOT NULL,
     name VARCHAR(255) NOT NULL
 );
