@@ -44,6 +44,7 @@ type DirectiveRoot struct {
 type ComplexityRoot struct {
 	InventoryItem struct {
 		ID         func(childComplexity int) int
+		Price      func(childComplexity int) int
 		StockLevel func(childComplexity int) int
 	}
 
@@ -86,6 +87,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.InventoryItem.ID(childComplexity), true
+
+	case "InventoryItem.price":
+		if e.complexity.InventoryItem.Price == nil {
+			break
+		}
+
+		return e.complexity.InventoryItem.Price(childComplexity), true
 
 	case "InventoryItem.stock_level":
 		if e.complexity.InventoryItem.StockLevel == nil {
@@ -196,6 +204,7 @@ var sources = []*ast.Source{
 	{Name: "../schemas.gql", Input: `type InventoryItem {
   id: ID!
   stock_level: Int!
+  price: Float!
 }
 
 type Vendor {
@@ -372,6 +381,50 @@ func (ec *executionContext) fieldContext_InventoryItem_stock_level(ctx context.C
 	return fc, nil
 }
 
+func (ec *executionContext) _InventoryItem_price(ctx context.Context, field graphql.CollectedField, obj *model.InventoryItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_InventoryItem_price(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(float64)
+	fc.Result = res
+	return ec.marshalNFloat2float64(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_InventoryItem_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "InventoryItem",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Float does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_vendor(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_vendor(ctx, field)
 	if err != nil {
@@ -463,6 +516,8 @@ func (ec *executionContext) fieldContext_Query_item(ctx context.Context, field g
 				return ec.fieldContext_InventoryItem_id(ctx, field)
 			case "stock_level":
 				return ec.fieldContext_InventoryItem_stock_level(ctx, field)
+			case "price":
+				return ec.fieldContext_InventoryItem_price(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type InventoryItem", field.Name)
 		},
@@ -785,6 +840,8 @@ func (ec *executionContext) fieldContext_Vendor_inventory(ctx context.Context, f
 				return ec.fieldContext_InventoryItem_id(ctx, field)
 			case "stock_level":
 				return ec.fieldContext_InventoryItem_stock_level(ctx, field)
+			case "price":
+				return ec.fieldContext_InventoryItem_price(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type InventoryItem", field.Name)
 		},
@@ -2597,6 +2654,13 @@ func (ec *executionContext) _InventoryItem(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "price":
+
+			out.Values[i] = ec._InventoryItem_price(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3070,6 +3134,21 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNFloat2float64(ctx context.Context, v interface{}) (float64, error) {
+	res, err := graphql.UnmarshalFloatContext(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.SelectionSet, v float64) graphql.Marshaler {
+	res := graphql.MarshalFloatContext(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return graphql.WrapContextMarshaler(ctx, res)
 }
 
 func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {

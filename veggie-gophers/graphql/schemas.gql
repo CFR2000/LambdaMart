@@ -1,6 +1,7 @@
 type InventoryItem {
   id: ID!
   stock_level: Int!
+  price: Float!
 }
 
 type Vendor {

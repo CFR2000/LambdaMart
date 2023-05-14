@@ -3,8 +3,9 @@
 package model
 
 type InventoryItem struct {
-	ID         string `json:"id"`
-	StockLevel int    `json:"stock_level"`
+	ID         string  `json:"id"`
+	StockLevel int     `json:"stock_level"`
+	Price      float64 `json:"price"`
 }
 
 type Vendor struct {

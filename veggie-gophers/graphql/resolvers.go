@@ -17,13 +17,14 @@ type Resolver struct {
 // // foo
 func (r *queryResolver) Vendor(ctx context.Context) (*model.Vendor, error) {
 	test := model.Vendor{
-		Title:       "1",
-		Description: "Test Vendor",
-		Icon:        "https://www.google.com",
+		Title:       "Veggie Gophers",
+		Description: "We sell the best vegtables in town!",
+		Icon:        "https:/localhost:8080/static/gophers.png",
 		Inventory: []*model.InventoryItem{
 			{
 				ID:         "1",
 				StockLevel: 10,
+				Price:      1.99,
 			},
 		},
 	}
