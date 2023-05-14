@@ -15,3 +15,13 @@ type Query {
   vendor: Vendor
   item(id: ID!): InventoryItem
 }
+
+enum PurchaseResult {
+  SUCCESS
+  INSUFFICIENT_STOCK
+  ITEM_NOT_FOUND
+}
+
+type Mutation {
+  purchase(id: ID!, quantity: Int!): PurchaseResult!
+}

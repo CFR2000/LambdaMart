@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"veggie-gophers/graphql"
 	"veggie-gophers/graphql/generated"
@@ -16,6 +17,7 @@ import (
 )
 
 const defaultPort = "8080"
+const maxStockLevel = 250
 
 func connectToDB() (*sql.DB, error) {
 	connStr := os.Getenv("DATABASE_URL")
@@ -37,6 +39,20 @@ func connectToDB() (*sql.DB, error) {
 	return db, nil
 }
 
+func RunStockUpdater(DB *sql.DB) {
+	ticker := time.NewTicker(5 * time.Second)
+
+	for range ticker.C {
+		_, err := DB.Exec(`
+			UPDATE inventory_items
+			SET stock_level = LEAST(stock_level + 1, $1)
+		`, maxStockLevel)
+		if err != nil {
+			log.Printf("Error updating stock levels: %v", err)
+		}
+	}
+}
+
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
@@ -48,6 +64,9 @@ func main() {
 		log.Fatalf("Failed to connect to the database: %v", err)
 	}
 	defer db.Close()
+
+	// Start the stock updater as a background process
+	go RunStockUpdater(db)
 
 	// Configure the GraphQL server with your generated resolvers.
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graphql.Resolver{DB: db}}))

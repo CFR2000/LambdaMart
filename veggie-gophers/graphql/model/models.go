@@ -2,6 +2,12 @@
 
 package model
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type InventoryItem struct {
 	ID         string  `json:"id"`
 	StockLevel int     `json:"stock_level"`
@@ -13,4 +19,47 @@ type Vendor struct {
 	Description string           `json:"description"`
 	Icon        string           `json:"icon"`
 	Inventory   []*InventoryItem `json:"inventory"`
+}
+
+type PurchaseResult string
+
+const (
+	PurchaseResultSuccess           PurchaseResult = "SUCCESS"
+	PurchaseResultInsufficientStock PurchaseResult = "INSUFFICIENT_STOCK"
+	PurchaseResultItemNotFound      PurchaseResult = "ITEM_NOT_FOUND"
+)
+
+var AllPurchaseResult = []PurchaseResult{
+	PurchaseResultSuccess,
+	PurchaseResultInsufficientStock,
+	PurchaseResultItemNotFound,
+}
+
+func (e PurchaseResult) IsValid() bool {
+	switch e {
+	case PurchaseResultSuccess, PurchaseResultInsufficientStock, PurchaseResultItemNotFound:
+		return true
+	}
+	return false
+}
+
+func (e PurchaseResult) String() string {
+	return string(e)
+}
+
+func (e *PurchaseResult) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = PurchaseResult(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid PurchaseResult", str)
+	}
+	return nil
+}
+
+func (e PurchaseResult) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }
