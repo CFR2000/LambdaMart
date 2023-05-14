@@ -13,7 +13,7 @@ type Product {
   coarse_class_name: String!
   coarse_class_id: Int!
   iconic_image_path: String!
-  #? or maybe just put in the description
+  id: ID!
 }
 
 type InventoryItem {
@@ -27,8 +27,6 @@ type Vendor {
   description: String!
   icon: String!
   inventory: [InventoryItem!]!
-  #? How would this work?
-  # ...
 }
 
 type Query {
