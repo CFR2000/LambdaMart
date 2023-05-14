@@ -1,0 +1,41 @@
+type Product {
+  id: ID!
+  title: String!
+  description: String!
+  image: String!
+  class_name: String!
+  class_id: Int!
+  coarse_class_name: String!
+  coarse_class_id: Int!
+  iconic_image_path: String!
+}
+
+type InventoryItem {
+  id: ID!
+  stock_level: Int!
+  price: Float!
+}
+
+type Vendor {
+  title: String!
+  description: String!
+  icon: String!
+  inventory: [InventoryItem!]!
+}
+
+type Query {
+  vendors: [Vendor!]!
+  product(id: ID!): Product
+  products: [Product!]!
+  item(vendorId: ID!, itemId: ID!): InventoryItem
+}
+
+type Mutation {
+  purchase(vendorId: ID!, itemId: ID!, quantity: Int!): PurchaseResult!
+}
+
+enum PurchaseResult {
+  SUCCESS
+  INSUFFICIENT_STOCK
+  ITEM_NOT_FOUND
+}
