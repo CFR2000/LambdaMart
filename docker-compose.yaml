@@ -28,3 +28,20 @@ services:
     depends_on:
       veggie-gophers-db:
         condition: service_healthy
+
+  broker-db:
+    build: ./broker/broker-db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: rootPassword
+    ports:
+      - 27017:27017
+
+  broker:
+    build: ./broker
+    ports:
+      - 8081:8081
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
+    depends_on:
+      - broker-db
