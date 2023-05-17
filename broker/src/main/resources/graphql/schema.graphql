@@ -1,9 +1,9 @@
 type Product {
   class_name: String!
-  class_id: ID!
-  coarse_class_name: String
-  image_path: String
-  product_type: String
+  classId: ID!
+  coarseClassName: String
+  imagePath: String
+  productType: String
   description: String
   country: String
   volume: String

@@ -58,7 +58,7 @@ def resolve_vendor(*_):
         if item_data:
             inventory.append({
                 "id": key.decode('utf-8'),
-                "stockLevel": int(item_data[b'stock_level']),
+                "stockLevel": int(item_data[b'stockLevel']),
                 "price": float(item_data[b'price'])
             })
         else:
@@ -82,7 +82,7 @@ def resolve_item(*_, id):
     if item_data:
         return {
             "id": id,
-            "stockLevel": int(item_data[b'stock_level']),
+            "stockLevel": int(item_data[b'stockLevel']),
             "price": float(item_data[b'price'])
         }
     else:
@@ -92,10 +92,10 @@ def resolve_item(*_, id):
 def resolve_purchase(*_, id, quantity):
     item_data = redis_client.hgetall(id)
     if item_data:
-        if int(item_data[b'stock_level']) < quantity:
+        if int(item_data[b'stockLevel']) < quantity:
             return "INSUFFICIENT_STOCK"
         else:
-            item_data[b'stock_level'] = str(int(item_data[b'stock_level']) - quantity)
+            item_data[b'stockLevel'] = str(int(item_data[b'stockLevel']) - quantity)
             redis_client.hmset(id, item_data)
             return "SUCCESS"
     else:
