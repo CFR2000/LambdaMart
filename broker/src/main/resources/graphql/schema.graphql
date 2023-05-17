@@ -1,18 +1,18 @@
 type Product {
-  id: ID!
-  title: String!
-  description: String!
-  image: String!
   class_name: String!
-  class_id: Int!
-  coarse_class_name: String!
-  coarse_class_id: Int!
-  iconic_image_path: String!
+  classId: ID!
+  coarseClassName: String
+  imagePath: String
+  productType: String
+  description: String
+  country: String
+  volume: String
+  key: String
 }
 
 type InventoryItem {
   id: ID!
-  stock_level: Int!
+  stockLevel: Int!
   price: Float!
 }
 

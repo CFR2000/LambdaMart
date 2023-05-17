@@ -36,6 +36,11 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: rootPassword
     ports:
       - 27017:27017
+    healthcheck:
+      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
 
   broker:
     build: ./broker
@@ -43,5 +48,9 @@ services:
       - 8081:8081
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
+      VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query
     depends_on:
-      - broker-db
+      broker-db:
+        condition: service_healthy
+      veggie-gophers-db:
+        condition: service_healthy

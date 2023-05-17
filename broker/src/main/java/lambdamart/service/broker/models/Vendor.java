@@ -1,17 +1,12 @@
-package lambdamart.service.broker.graphql.model;
+package lambdamart.service.broker.models;
+
+import java.util.List;
 
 public class Vendor {
     private String title;
     private String description;
     private String icon;
-    private InventoryItem[] inventory;
-
-    public Vendor(String title, String description, String icon, InventoryItem[] inventory) {
-        this.title = title;
-        this.description = description;
-        this.icon = icon;
-        this.inventory = inventory;
-    }
+    private List<InventoryItem> inventory;
 
     public String getTitle() {
         return title;
@@ -37,11 +32,17 @@ public class Vendor {
         this.icon = icon;
     }
 
-    public InventoryItem[] getInventory() {
+    public List<InventoryItem> getInventory() {
         return inventory;
     }
 
-    public void setInventory(InventoryItem[] inventory) {
+    public void setInventory(List<InventoryItem> inventory) {
         this.inventory = inventory;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Vendor[title=%s, description=%s, icon=%s, inventory=%s]", title, description, icon,
+                inventory);
     }
 }

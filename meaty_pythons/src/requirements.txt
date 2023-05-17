@@ -1,0 +1,10 @@
+flask
+graphene
+flask-graphql
+redis
+ariadne
+uvicorn
+docopt
+fastapi
+starlette
+fastapi[all]

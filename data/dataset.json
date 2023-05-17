@@ -889,5 +889,116 @@
     "country": "Spain",
     "volume": "",
     "key": "vegetables.zucchini.zucchini"
+  },
+  {
+    "class_name": "Python-Filet",
+    "class_id": 81,
+    "coarse_class_name": "Python",
+    "image_path": "images/Reptiles/Python/Python-Filet/Python-Filet_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Exotic python filet. Lean and flavorful, perfect for grilling or frying.",
+    "country": "Australia",
+    "volume": "500g",
+    "key": "reptiles.python.python_filet"
+  },
+  {
+    "class_name": "Alligator-Steak",
+    "class_id": 82,
+    "coarse_class_name": "Alligator",
+    "image_path": "images/Reptiles/Alligator/Alligator-Steak/Alligator-Steak_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Juicy alligator steak. A taste reminiscent of chicken but with a unique twist.",
+    "country": "USA",
+    "volume": "600g",
+    "key": "reptiles.alligator.alligator_steak"
+  },
+  {
+    "class_name": "Crocodile-Burger",
+    "class_id": 83,
+    "coarse_class_name": "Crocodile",
+    "image_path": "images/Reptiles/Crocodile/Crocodile-Burger/Crocodile-Burger_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Crocodile meat burgers. A great lean meat option for the adventurous eater.",
+    "country": "Australia",
+    "volume": "400g",
+    "key": "reptiles.crocodile.crocodile_burger"
+  },
+  {
+    "class_name": "Turtle-Soup",
+    "class_id": 84,
+    "coarse_class_name": "Turtle",
+    "image_path": "images/Reptiles/Turtle/Turtle-Soup/Turtle-Soup_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Prepared turtle meat for traditional turtle soup. Rich in flavor and nutrients.",
+    "country": "China",
+    "volume": "300g",
+    "key": "reptiles.turtle.turtle_soup"
+  },
+  {
+    "class_name": "Iguana-Roast",
+    "class_id": 85,
+    "coarse_class_name": "Iguana",
+    "image_path": "images/Reptiles/Iguana/Iguana-Roast/Iguana-Roast_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Iguana roast. A Central American delicacy, best slow-cooked to perfection.",
+    "country": "Costa Rica",
+    "volume": "700g",
+    "key": "reptiles.iguana.iguana_roast"
+  },
+  {
+    "class_name": "Lizard-Legs",
+    "class_id": 86,
+    "coarse_class_name": "Lizard",
+    "image_path": "images/Reptiles/Lizard/Lizard-Legs/Lizard-Legs_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Succulent lizard legs, a delicacy in many cultures. Perfect for grilling.",
+    "country": "Australia",
+    "volume": "250g",
+    "key": "reptiles.lizard.lizard_legs"
+  },
+  {
+    "class_name": "Rattlesnake-Ribs",
+    "class_id": 87,
+    "coarse_class_name": "Snake",
+    "image_path": "images/Reptiles/Snake/Rattlesnake-Ribs/Rattlesnake-Ribs_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Marinated rattlesnake ribs, a true wild west delicacy. Great for BBQs.",
+    "country": "USA",
+    "volume": "300g",
+    "key": "reptiles.snake.rattlesnake_ribs"
+  },
+  {
+    "class_name": "Tortoise-Tenders",
+    "class_id": 88,
+    "coarse_class_name": "Tortoise",
+    "image_path": "images/Reptiles/Tortoise/Tortoise-Tenders/Tortoise-Tenders_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Tender tortoise meat, lean and full of flavor. Ideal for stir-fry dishes.",
+    "country": "Galapagos",
+    "volume": "350g",
+    "key": "reptiles.tortoise.tortoise_tenders"
+  },
+  {
+    "class_name": "Komodo-Dragon-Chops",
+    "class_id": 89,
+    "coarse_class_name": "Dragon",
+    "image_path": "images/Reptiles/Dragon/Komodo-Dragon-Chops/Komodo-Dragon-Chops_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Komodo dragon chops. A rare and exotic meat, perfect for the adventurous palate.",
+    "country": "Indonesia",
+    "volume": "450g",
+    "key": "reptiles.dragon.komodo_dragon_chops"
+  },
+  {
+    "class_name": "Gecko-Goulash",
+    "class_id": 90,
+    "coarse_class_name": "Gecko",
+    "image_path": "images/Reptiles/Gecko/Gecko-Goulash/Gecko-Goulash_Iconic.jpg",
+    "product_type": "Reptiles",
+    "description": "Gecko meat prepared for goulash. Tender and flavorful, a unique addition to any stew.",
+    "country": "Thailand",
+    "volume": "200g",
+    "key": "reptiles.gecko.gecko_goulash"
   }
 ]
+

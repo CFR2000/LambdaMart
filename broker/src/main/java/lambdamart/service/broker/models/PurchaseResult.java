@@ -1,4 +1,4 @@
-package lambdamart.service.broker.graphql.model;
+package lambdamart.service.broker.models;
 
 public enum PurchaseResult {
     SUCCESS,
