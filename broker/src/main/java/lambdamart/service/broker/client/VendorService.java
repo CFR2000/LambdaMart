@@ -1,6 +1,6 @@
 package lambdamart.service.broker.client;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -13,83 +13,112 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lambdamart.service.broker.models.InventoryItem;
 import lambdamart.service.broker.models.PurchaseResult;
 import lambdamart.service.broker.models.Vendor;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class VendorService {
     @Autowired
     private GraphQLVendorClientFactory clientFactory;
 
-    public List<Vendor> getAllVendors() {
+    public Mono<List<Vendor>> getAllVendors() {
         ObjectMapper mapper = new ObjectMapper();
-        List<Vendor> vendors = new ArrayList<>();
 
-        for (String vendorId : clientFactory.getClients().keySet()) {
-            GraphQLVendorClient client = clientFactory.getClient(vendorId);
-            String query = "{ vendor { title description icon inventory { id stock_level price } } }";
-            String response = client.perform(query, null);
+        return Flux.fromIterable(clientFactory.getClients().keySet())
+                .flatMap(vendorId -> {
+                    GraphQLVendorClient client = clientFactory.getClient(vendorId);
+                    String query = "{ vendor { title description icon inventory { id stock_level price } } }";
 
-            try {
-                // parse the response
-                Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<>() {
-                });
-                Map<String, Object> dataMap = (Map<String, Object>) responseMap.get("data");
-                Map<String, Object> vendorData = (Map<String, Object>) dataMap.get("vendor");
+                    return client.perform(query, null)
+                            .flatMap(responseEntity -> {
+                                if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+                                    System.err.println("Request failed: " + responseEntity.getBody());
+                                    return Mono.empty();
+                                }
 
-                // convert the vendor data into a Vendor object and add it to the list
-                vendors.add(mapper.convertValue(vendorData, Vendor.class));
-            } catch (Exception e) {
-                System.err.println("Failed to parse the response: " + e);
-                return vendors;
-            }
-        }
+                                String response = responseEntity.getBody();
 
-        return vendors;
+                                try {
+                                    // parse the response
+                                    Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<>() {
+                                    });
+                                    Map<String, Object> dataMap = (Map<String, Object>) responseMap.get("data");
+                                    Map<String, Object> vendorData = (Map<String, Object>) dataMap.get("vendor");
+
+                                    // convert the vendor data into a Vendor object and return it
+                                    return Mono.just(mapper.convertValue(vendorData, Vendor.class));
+                                } catch (Exception e) {
+                                    System.err.println("Failed to parse the response: " + e);
+                                    return Mono.empty();
+                                }
+                            });
+                })
+                .collectList()
+                .onErrorReturn(Collections.emptyList());
     }
 
-    public InventoryItem getItem(String vendorId, String itemId) {
+    public Mono<InventoryItem> getItem(String vendorId, String itemId) {
         GraphQLVendorClient client = clientFactory.getClient(vendorId);
         String query = "{ item(id: \"" + itemId + "\") { id stock_level price } }";
-        String response = client.perform(query, null);
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            // parse the response
-            Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<>() {
-            });
+        return client.perform(query, null)
+                .flatMap(responseEntity -> {
+                    if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+                        System.err.println("Request failed: " + responseEntity.getBody());
+                        return Mono.just(new InventoryItem());
+                    }
 
-            // extract the "data" and "item" from the response
-            Map<String, Object> dataMap = (Map<String, Object>) responseMap.get("data");
-            Map<String, Object> itemMap = (Map<String, Object>) dataMap.get("item");
+                    String response = responseEntity.getBody();
 
-            return mapper.convertValue(itemMap, InventoryItem.class);
-        } catch (Exception e) {
-            System.err.println("Failed to parse the response: " + e);
-            return new InventoryItem();
-        }
+                    ObjectMapper mapper = new ObjectMapper();
+                    try {
+                        // parse the response
+                        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<>() {
+                        });
+
+                        // extract the "data" and "item" from the response
+                        Map<String, Object> dataMap = (Map<String, Object>) responseMap.get("data");
+                        Map<String, Object> itemMap = (Map<String, Object>) dataMap.get("item");
+
+                        return Mono.just(mapper.convertValue(itemMap, InventoryItem.class));
+                    } catch (Exception e) {
+                        System.err.println("Failed to parse the response: " + e);
+                        return Mono.just(new InventoryItem());
+                    }
+                });
     }
 
-    public PurchaseResult purchase(String vendorId, String productId, int quantity) {
+    public Mono<PurchaseResult> purchase(String vendorId, String productId, int quantity) {
         GraphQLVendorClient client = clientFactory.getClient(vendorId);
         String mutation = "mutation { purchase(id: \"" + productId + "\", quantity: "
                 + quantity + ") }";
-        String response = client.perform(mutation, null);
 
-        ObjectMapper mapper = new ObjectMapper();
+        return client.perform(mutation, null)
+                .flatMap(responseEntity -> {
+                    if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+                        System.err.println("Request failed: " + responseEntity.getBody());
+                        return Mono.just(PurchaseResult.ITEM_NOT_FOUND);
+                    }
 
-        try {
-            // parse the response
-            Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<>() {
-            });
-            Map<String, Object> dataMap = (Map<String, Object>) responseMap.get("data");
+                    String response = responseEntity.getBody();
 
-            String purchaseResult = (String) dataMap.get("purchase");
+                    ObjectMapper mapper = new ObjectMapper();
 
-            // convert the result to a PurchaseResult enum
-            return PurchaseResult.valueOf(purchaseResult.toUpperCase());
-        } catch (Exception e) {
-            System.err.println("Failed to parse the response: " + e);
-            return PurchaseResult.ITEM_NOT_FOUND;
-        }
+                    try {
+                        // parse the response
+                        Map<String, Object> responseMap = mapper.readValue(response, new TypeReference<>() {
+                        });
+                        Map<String, Object> dataMap = (Map<String, Object>) responseMap.get("data");
+
+                        String purchaseResult = (String) dataMap.get("purchase");
+
+                        // convert the result to a PurchaseResult enum
+                        return Mono.just(PurchaseResult.valueOf(purchaseResult.toUpperCase()));
+                    } catch (Exception e) {
+                        System.err.println("Failed to parse the response: " + e);
+                        return Mono.just(PurchaseResult.ITEM_NOT_FOUND);
+                    }
+                });
     }
 
 }
