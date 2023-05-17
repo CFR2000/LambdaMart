@@ -1,0 +1,45 @@
+# WARNING, do not change the values below this line, you can
+# add your own types for internal use above or below these.
+
+# TODO: Flesh out the types in this file
+
+# properties comes from classes.csv
+type Product {
+  title: String!
+  description: String!
+  image: String!
+  class_name: String!
+  class_id: Int!
+  coarse_class_name: String!
+  coarse_class_id: Int!
+  iconic_image_path: String!
+  id: ID!
+}
+
+type InventoryItem {
+  id: ID!
+  stock_level: Int!
+  price: Float!
+}
+
+type Vendor {
+  title: String!
+  description: String!
+  icon: String!
+  inventory: [InventoryItem!]!
+}
+
+type Query {
+  vendor: Vendor
+  item(id: ID!): InventoryItem
+}
+
+enum PurchaseResult {
+  SUCCESS
+  INSUFFICIENT_STOCK
+  ITEM_NOT_FOUND
+}
+
+type Mutation {
+  purchase(id: ID!, quantity: Int!): PurchaseResult!
+}

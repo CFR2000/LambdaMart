@@ -1,0 +1,2 @@
+# This Dockerfile is used to create a Docker image with Redis installed.
+FROM redis:6.2
