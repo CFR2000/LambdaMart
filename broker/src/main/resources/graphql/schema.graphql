@@ -1,13 +1,13 @@
 type Product {
-  id: ID!
-  title: String!
-  description: String!
-  image: String!
   class_name: String!
-  class_id: Int!
-  coarse_class_name: String!
-  coarse_class_id: Int!
-  iconic_image_path: String!
+  class_id: ID!
+  coarse_class_name: String
+  image_path: String
+  product_type: String
+  description: String
+  country: String
+  volume: String
+  key: String
 }
 
 type InventoryItem {

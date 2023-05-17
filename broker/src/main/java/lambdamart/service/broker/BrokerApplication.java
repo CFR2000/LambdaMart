@@ -1,22 +1,33 @@
 package lambdamart.service.broker;
 
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
-import lambdamart.service.broker.client.GraphQLVendorClient;
+import lambdamart.service.broker.client.VendorService;
+import lambdamart.service.broker.models.PurchaseResult;
 
 @SpringBootApplication
 public class BrokerApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(BrokerApplication.class, args);
+	}
 
-		GraphQLVendorClient client = new GraphQLVendorClient("http://veggie-gophers:8080/query");
+	@Bean
+	public CommandLineRunner commandLineRunner(VendorService vendorService) {
+		return args -> {
 
-		String query = "{ vendor { title description icon inventory { id stock_level price } } }";
-		String response = client.perform(query, null);
+			System.out.println("Purchases:");
+			PurchaseResult result = vendorService.purchase("veggie-gophers", "1", 4);
+			PurchaseResult result2 = vendorService.purchase("veggie-gophers", "1", 250);
+			PurchaseResult result3 = vendorService.purchase("veggie-gophers", "10", 4);
 
-		System.out.println(response);
+			System.out.println(result);
+			System.out.println(result2);
+			System.out.println(result3);
+		};
 	}
 
 }
