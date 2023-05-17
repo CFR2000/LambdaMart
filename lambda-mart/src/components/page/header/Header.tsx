@@ -1,99 +1,45 @@
-import * as React from "react";
-
+import React from "react";
+import { Link } from "gatsby";
 import {
   useColorMode,
   useColorModeValue,
   useDisclosure,
   chakra,
-  Link,
-  SimpleGrid,
-  Stack,
+  Link as ChakraLink,
   VStack,
   CloseButton,
   Button,
   Flex,
   HStack,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
   Spacer,
   IconButton,
   Box,
-  TextProps,
 } from "@chakra-ui/react";
 import { useViewportScroll } from "framer-motion";
 import { FaSun, FaMoon } from "react-icons/fa";
-import {
-  AiFillExperiment,
-  AiFillHome,
-  AiOutlineInbox,
-  AiOutlineMenu,
-} from "react-icons/ai";
+import { AiFillHome, AiOutlineMenu } from "react-icons/ai";
 import { BsFillCameraVideoFill } from "react-icons/bs";
-import { IoIosArrowDown } from "react-icons/io";
+import { StaticImage } from "gatsby-plugin-image";
+import useScrollUp from "../../../hooks/useScrollUp";
 
-const Logo = <AiFillExperiment />;
+const logo = (
+  <StaticImage
+    src="../../../images/Lambda.png"
+    alt="Logo for lambda-mart"
+    placeholder="blurred"
+    layout="fixed"
+    height={30}
+  />
+);
 
 const Header: React.FC = () => {
   const { toggleColorMode: toggleMode } = useColorMode();
   const text = useColorModeValue("dark", "light");
   const SwitchIcon = useColorModeValue(FaMoon, FaSun);
   const bg = useColorModeValue("white", "gray.800");
-  const ref = React.useRef(null);
-  const [y, setY] = React.useState(0);
-  const height = ref.current ? ref.current.getBoundingClientRect() : 0;
-  const { scrollY } = useViewportScroll();
-  React.useEffect(() => {
-    return scrollY.onChange(() => setY(scrollY.get()));
-  }, [scrollY]);
+  const isScrollUp = useScrollUp();
   const cl = useColorModeValue("gray.800", "white");
   const mobileNav = useDisclosure();
-
-  const Section: React.FC<{
-    icon?: any;
-    title?: string;
-    description?: React.ReactNode | string;
-    children: React.ReactNode | string;
-  }> = (props) => {
-    const ic = useColorModeValue("brand.600", "brand.50");
-    const hbg = useColorModeValue("gray.50", "brand.400");
-    const tcl = useColorModeValue("gray.900", "gray.50");
-    const dcl = useColorModeValue("gray.500", "gray.50");
-    return (
-      <Link
-        m={-3}
-        p={3}
-        display="flex"
-        alignItems="start"
-        rounded="lg"
-        _hover={{
-          bg: hbg,
-        }}
-      >
-        <chakra.svg
-          flexShrink={0}
-          h={6}
-          w={6}
-          color={ic}
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          {props.icon}
-        </chakra.svg>
-        <Box ml={4}>
-          <chakra.p fontSize="sm" fontWeight="700" color={tcl}>
-            {props.title}
-          </chakra.p>
-          <chakra.p mt={1} fontSize="sm" color={dcl}>
-            {props.children}
-          </chakra.p>
-        </Box>
-      </Link>
-    );
-  };
 
   const MobileNavContent: React.ReactNode = (
     <VStack
@@ -117,23 +63,22 @@ const Header: React.FC = () => {
         onClick={mobileNav.onClose}
       />
       <Button w="full" variant="ghost" leftIcon={<AiFillHome />}>
-        Dashboard
+        Store
       </Button>
       <Button w="full" variant="ghost" leftIcon={<BsFillCameraVideoFill />}>
-        Videos
+        Vendors
       </Button>
     </VStack>
   );
 
   return (
-    <>
+    <Box height="4.5rem">
       <chakra.header
-        ref={ref}
-        shadow={y > height ? "sm" : undefined}
+        shadow={isScrollUp ? "md" : undefined}
+        // TODO: Figure out how to get this to work properly
+        // position="sticky"
         transition="box-shadow 0.2s"
         bg={bg}
-        // borderTop="6px solid"
-        // borderTopColor="brand.400"
         w="full"
         overflowY="hidden"
       >
@@ -146,13 +91,14 @@ const Header: React.FC = () => {
             justifyContent="space-between"
           >
             <Flex align="flex-start">
-              <Link href="/">
-                <HStack>{Logo}</HStack>
-              </Link>
+              <ChakraLink as={Link} to="/">
+                <HStack>{logo}</HStack>
+              </ChakraLink>
             </Flex>
             <Flex>
               <HStack
                 spacing="5"
+                paddingInline="5"
                 display={{
                   base: "none",
                   md: "flex",
@@ -171,7 +117,7 @@ const Header: React.FC = () => {
                     boxShadow: "none",
                   }}
                 >
-                  Blog
+                  Store
                 </Button>
                 <Button
                   bg={bg}
@@ -186,7 +132,7 @@ const Header: React.FC = () => {
                     boxShadow: "none",
                   }}
                 >
-                  Pricing
+                  Vendors
                 </Button>
               </HStack>
             </Flex>
@@ -239,7 +185,7 @@ const Header: React.FC = () => {
           {MobileNavContent}
         </chakra.div>
       </chakra.header>
-    </>
+    </Box>
   );
 };
 

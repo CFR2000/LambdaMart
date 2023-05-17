@@ -6,6 +6,9 @@ const plugin = (resolve: string, options?: any, __key?: string) => ({
   __key,
 });
 
+const file_system = (name: string, path: string, __key?: string) =>
+  plugin("gatsby-source-filesystem", { name, path }, __key);
+
 const config: GatsbyConfig = {
   siteMetadata: {
     title: `Lambda Mart`,
@@ -22,16 +25,11 @@ const config: GatsbyConfig = {
     "gatsby-plugin-mdx",
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",
-    plugin(
-      "gatsby-source-filesystem",
-      { name: "images", path: "./src/images/" },
-      "images"
-    ),
-    plugin(
-      "gatsby-source-filesystem",
-      { name: "pages", path: "./src/pages/" },
-      "pages"
-    ),
+    "gatsby-transformer-json",
+    "gatsby-plugin-use-query-params",
+    file_system("images", "./src/images/", "images"),
+    file_system("pages", "./src/pages/", "pages"),
+    file_system("dataset", "../data/", "dataset"),
     plugin("@chakra-ui/gatsby-plugin", {
       /**
        * @property {boolean} [resetCSS=true]
