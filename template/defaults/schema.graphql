@@ -3,17 +3,16 @@
 
 # TODO: Flesh out the types in this file
 
-# properties comes from classes.csv
 type Product {
-  title: String!
-  description: String!
-  image: String!
   class_name: String!
-  class_id: Int!
-  coarse_class_name: String!
-  coarse_class_id: Int!
-  iconic_image_path: String!
-  id: ID!
+  class_id: ID!
+  coarse_class_name: String
+  image_path: String
+  product_type: String
+  description: String
+  country: String
+  volume: String
+  key: String
 }
 
 type InventoryItem {
