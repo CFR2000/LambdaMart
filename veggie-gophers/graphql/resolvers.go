@@ -16,7 +16,7 @@ type Resolver struct {
 
 // // foo
 func (r *queryResolver) Vendor(ctx context.Context) (*model.Vendor, error) {
-	rows, err := r.DB.Query("SELECT id, stock_level, price FROM inventory_items")
+	rows, err := r.DB.Query("SELECT id, stockLevel, price FROM inventory_items")
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +45,7 @@ func (r *queryResolver) Vendor(ctx context.Context) (*model.Vendor, error) {
 // // foo
 func (r *queryResolver) Item(ctx context.Context, id string) (*model.InventoryItem, error) {
 	var item model.InventoryItem
-	err := r.DB.QueryRow("SELECT id, stock_level FROM inventory_items WHERE id = $1", id).Scan(&item.ID, &item.StockLevel)
+	err := r.DB.QueryRow("SELECT id, stockLevel, price FROM inventory_items WHERE id = $1", id).Scan(&item.ID, &item.StockLevel, &item.Price)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, fmt.Errorf("No item found with id: %s", id)
@@ -66,7 +66,7 @@ func (r *mutationResolver) Purchase(ctx context.Context, id string, quantity int
 
 	// Get the current stock level of the item
 	var currentStockLevel int
-	err = tx.QueryRow("SELECT stock_level FROM inventory_items WHERE id = $1", id).Scan(&currentStockLevel)
+	err = tx.QueryRow("SELECT stockLevel FROM inventory_items WHERE id = $1", id).Scan(&currentStockLevel)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return model.PurchaseResultItemNotFound, nil
@@ -81,7 +81,7 @@ func (r *mutationResolver) Purchase(ctx context.Context, id string, quantity int
 
 	// Update the stock level
 	newStockLevel := currentStockLevel - quantity
-	_, err = tx.Exec("UPDATE inventory_items SET stock_level = $1 WHERE id = $2", newStockLevel, id)
+	_, err = tx.Exec("UPDATE inventory_items SET stockLevel = $1 WHERE id = $2", newStockLevel, id)
 	if err != nil {
 		return "", err
 	}

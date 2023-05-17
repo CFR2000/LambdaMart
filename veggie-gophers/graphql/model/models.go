@@ -10,7 +10,7 @@ import (
 
 type InventoryItem struct {
 	ID         string  `json:"id"`
-	StockLevel int     `json:"stock_level"`
+	StockLevel int     `json:"stockLevel"`
 	Price      float64 `json:"price"`
 }
 

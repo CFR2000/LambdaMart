@@ -1,7 +1,6 @@
 package lambdamart.service.broker.client;
-
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -17,11 +16,12 @@ public class GraphQLDataFetchers {
     @Autowired
     private VendorService vendorService;
 
-    public DataFetcher<CompletableFuture<List<Vendor>>> getVendorDataFetcher() {
+    public DataFetcher<CompletionStage<List<Vendor>>> getVendorDataFetcher() {
         return environment -> vendorService.getAllVendors().toFuture();
     }
+    
 
-    public DataFetcher<CompletableFuture<InventoryItem>> getItemDataFetcher() {
+    public DataFetcher<CompletionStage<InventoryItem>> getItemDataFetcher() {
         return environment -> {
             String vendorId = environment.getArgument("vendorId");
             String itemId = environment.getArgument("itemId");
@@ -29,10 +29,10 @@ public class GraphQLDataFetchers {
         };
     }
 
-    public DataFetcher<CompletableFuture<PurchaseResult>> getPurchaseDataFetcher() {
+    public DataFetcher<CompletionStage<PurchaseResult>> getPurchaseDataFetcher() {
         return environment -> {
             String vendorId = environment.getArgument("vendorId");
-            String productId = environment.getArgument("productId");
+            String productId = environment.getArgument("itemId");
             int quantity = environment.getArgument("quantity");
             return vendorService.purchase(vendorId, productId, quantity).toFuture();
         };

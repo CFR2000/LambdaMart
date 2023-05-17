@@ -103,7 +103,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.InventoryItem.Price(childComplexity), true
 
-	case "InventoryItem.stock_level":
+	case "InventoryItem.stockLevel":
 		if e.complexity.InventoryItem.StockLevel == nil {
 			break
 		}
@@ -238,7 +238,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../schemas.gql", Input: `type InventoryItem {
   id: ID!
-  stock_level: Int!
+  stockLevel: Int!
   price: Float!
 }
 
@@ -406,8 +406,8 @@ func (ec *executionContext) fieldContext_InventoryItem_id(ctx context.Context, f
 	return fc, nil
 }
 
-func (ec *executionContext) _InventoryItem_stock_level(ctx context.Context, field graphql.CollectedField, obj *model.InventoryItem) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InventoryItem_stock_level(ctx, field)
+func (ec *executionContext) _InventoryItem_stockLevel(ctx context.Context, field graphql.CollectedField, obj *model.InventoryItem) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_InventoryItem_stockLevel(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -437,7 +437,7 @@ func (ec *executionContext) _InventoryItem_stock_level(ctx context.Context, fiel
 	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InventoryItem_stock_level(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_InventoryItem_stockLevel(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "InventoryItem",
 		Field:      field,
@@ -638,8 +638,8 @@ func (ec *executionContext) fieldContext_Query_item(ctx context.Context, field g
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_InventoryItem_id(ctx, field)
-			case "stock_level":
-				return ec.fieldContext_InventoryItem_stock_level(ctx, field)
+			case "stockLevel":
+				return ec.fieldContext_InventoryItem_stockLevel(ctx, field)
 			case "price":
 				return ec.fieldContext_InventoryItem_price(ctx, field)
 			}
@@ -962,8 +962,8 @@ func (ec *executionContext) fieldContext_Vendor_inventory(ctx context.Context, f
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_InventoryItem_id(ctx, field)
-			case "stock_level":
-				return ec.fieldContext_InventoryItem_stock_level(ctx, field)
+			case "stockLevel":
+				return ec.fieldContext_InventoryItem_stockLevel(ctx, field)
 			case "price":
 				return ec.fieldContext_InventoryItem_price(ctx, field)
 			}
@@ -2771,9 +2771,9 @@ func (ec *executionContext) _InventoryItem(ctx context.Context, sel ast.Selectio
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "stock_level":
+		case "stockLevel":
 
-			out.Values[i] = ec._InventoryItem_stock_level(ctx, field, obj)
+			out.Values[i] = ec._InventoryItem_stockLevel(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

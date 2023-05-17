@@ -45,7 +45,7 @@ func RunStockUpdater(DB *sql.DB) {
 	for range ticker.C {
 		_, err := DB.Exec(`
 			UPDATE inventory_items
-			SET stock_level = LEAST(stock_level + 1, $1)
+			SET stockLevel = LEAST(stockLevel + 1, $1)
 		`, maxStockLevel)
 		if err != nil {
 			log.Printf("Error updating stock levels: %v", err)

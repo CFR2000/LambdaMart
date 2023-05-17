@@ -17,7 +17,7 @@ type Product {
 
 type InventoryItem {
   id: ID!
-  stock_level: Int!
+  stockLevel: Int!
   price: Float!
 }
 

@@ -1,9 +1,10 @@
 package lambdamart.service.broker.models;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
 
 public class InventoryItem {
     private String id;
+    @JsonAlias("stockLevel")
     private int stockLevel;
     private float price;
 
@@ -15,12 +16,12 @@ public class InventoryItem {
         this.id = id;
     }
 
-    @JsonProperty("stock_level")
+    @JsonAlias("stockLevel")
     public int getStockLevel() {
         return stockLevel;
     }
 
-    @JsonProperty("stock_level")
+    @JsonAlias("stockLevel")
     public void setStockLevel(int stockLevel) {
         this.stockLevel = stockLevel;
     }
