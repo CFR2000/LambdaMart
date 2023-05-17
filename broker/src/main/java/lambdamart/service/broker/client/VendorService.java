@@ -38,7 +38,8 @@ public class VendorService {
                 // convert the vendor data into a Vendor object and add it to the list
                 vendors.add(mapper.convertValue(vendorData, Vendor.class));
             } catch (Exception e) {
-                throw new RuntimeException("Failed to parse the response", e);
+                System.err.println("Failed to parse the response: " + e);
+                return vendors;
             }
         }
 
@@ -62,7 +63,8 @@ public class VendorService {
 
             return mapper.convertValue(itemMap, InventoryItem.class);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse the response", e);
+            System.err.println("Failed to parse the response: " + e);
+            return new InventoryItem();
         }
     }
 
@@ -85,7 +87,8 @@ public class VendorService {
             // convert the result to a PurchaseResult enum
             return PurchaseResult.valueOf(purchaseResult.toUpperCase());
         } catch (Exception e) {
-            throw new RuntimeException("Failed to parse the response", e);
+            System.err.println("Failed to parse the response: " + e);
+            return PurchaseResult.ITEM_NOT_FOUND;
         }
     }
 
