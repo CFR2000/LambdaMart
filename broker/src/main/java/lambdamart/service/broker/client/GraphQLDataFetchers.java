@@ -29,6 +29,15 @@ public class GraphQLDataFetchers {
         };
     }
 
+    // public DataFetcher<CompletionStage<Product>> getProductDataFetcher() {
+    //     return environment -> {
+    //         String productId = environment.getArgument("productId");
+
+    //         return new Product();
+    //         // return vendorService.getProduct(productId).toFuture();
+    //     };
+    // }
+
     public DataFetcher<CompletionStage<PurchaseResult>> getPurchaseDataFetcher() {
         return environment -> {
             String vendorId = environment.getArgument("vendorId");
