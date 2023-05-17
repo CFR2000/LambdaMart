@@ -26,7 +26,6 @@ const config: GatsbyConfig = {
     "gatsby-plugin-sharp",
     "gatsby-transformer-sharp",
     "gatsby-transformer-json",
-    "gatsby-plugin-use-query-params",
     file_system("images", "./src/images/", "images"),
     file_system("pages", "./src/pages/", "pages"),
     file_system("dataset", "../data/", "dataset"),

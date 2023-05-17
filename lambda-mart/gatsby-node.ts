@@ -19,7 +19,15 @@ exports.createPages = ({ graphql, actions }: any) => {
               country
               description
               id
-              image_path
+              image: image_path {
+                childImageSharp {
+                  gatsbyImageData(
+                    placeholder: BLURRED
+                    formats: [AUTO, WEBP, AVIF]
+                    width: 250
+                  )
+                }
+              }
             }
           }
         }

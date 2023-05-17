@@ -1,6 +1,11 @@
 import React, { MouseEventHandler } from "react";
 
-import { GatsbyImage, GatsbyImageProps } from "gatsby-plugin-image";
+import {
+  GatsbyImage,
+  GatsbyImageProps,
+  ImageDataLike,
+  getImage,
+} from "gatsby-plugin-image";
 
 import {
   Wrap,
@@ -13,19 +18,17 @@ import {
   ButtonGroup,
 } from "@chakra-ui/react";
 
-const Hero = ({
-  img,
-  title,
-  description,
-  onBuyNowClick,
-}: {
-  img?: GatsbyImageProps;
+export type HeroProps = {
+  image: ImageDataLike | null;
   title: string;
   description: string;
   onBuyNowClick: MouseEventHandler<HTMLElement>;
-}) => {
+};
+
+const Hero = ({ image, title, description, onBuyNowClick }: HeroProps) => {
   const [topText, ...desc] = description.split(".");
   const bottomText = desc.join(".");
+  const img = getImage(image);
   return (
     <Wrap
       direction={{ base: "column", md: "row" }}
@@ -36,12 +39,16 @@ const Hero = ({
     >
       <WrapItem
         flexGrow={0}
+        alignItems="center"
+        justifyContent="center"
         w={{ base: "2xs", sm: "xs", md: "sm" }}
         h={{ base: "2xs", sm: "xs", md: "sm" }}
       >
-        <Skeleton w="100%" h="100%" speed={0.9}>
-          {img && <GatsbyImage {...img} />}
-        </Skeleton>
+        {img ? (
+          <GatsbyImage image={img} alt={`product image of ${title}`} />
+        ) : (
+          <Skeleton w="100%" h="100%" speed={0.9} />
+        )}
       </WrapItem>
       <WrapItem flexGrow={1} flexBasis="0" maxW="lg">
         <Box>

@@ -12,7 +12,7 @@ const Layout: React.FC<PropsWithChildren> = ({ children = null }) => {
         <Header />
       </GridItem>
       <GridItem>
-        <Box maxW="4xl" marginInline="auto">
+        <Box marginInline="auto">
           {children || <p>Nothing to see here...</p>}
         </Box>
       </GridItem>

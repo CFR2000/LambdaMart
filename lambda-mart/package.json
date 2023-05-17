@@ -16,9 +16,11 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@ark-ui/react": "^0.3.0",
     "@chakra-ui/gatsby-plugin": "^3.1.1",
     "@chakra-ui/icons": "^2.0.18",
     "@chakra-ui/react": "^2.5.5",
+    "@choc-ui/paginator": "^3.4.0",
     "@emotion/react": "^11.10.6",
     "@emotion/styled": "^11.10.6",
     "@fontsource/inter-tight": "^4.5.2",
@@ -32,7 +34,6 @@
     "gatsby-plugin-mdx": "^5.9.0",
     "gatsby-plugin-netlify-cms": "^7.9.0",
     "gatsby-plugin-sharp": "^5.9.0",
-    "gatsby-plugin-use-query-params": "^1.0.1",
     "gatsby-source-filesystem": "^5.9.0",
     "gatsby-transformer-json": "^5.10.0",
     "gatsby-transformer-sharp": "^5.9.0",
@@ -40,7 +41,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.8.0",
-    "use-query-params": "^2.2.1"
+    "react-use-query-param-string": "^2.0.10"
   },
   "devDependencies": {
     "@types/node": "^18.15.11",

@@ -16,7 +16,7 @@ const ProductTemplatePage: React.FC = (data: any) => {
     country,
     description,
     id,
-    image_path,
+    image,
   } = data.pageContext;
   console.log(data);
   return (
@@ -38,6 +38,7 @@ const ProductTemplatePage: React.FC = (data: any) => {
           <Hero
             title={class_name}
             description={description}
+            image={image}
             onBuyNowClick={() =>
               toast({
                 title: "Click!",
