@@ -42,7 +42,7 @@ public class Vendor {
 
     @Override
     public String toString() {
-        return String.format("Vendor[title=%s, description=%s, icon=%s, inventory=%s]", title, description, icon,
+        return String.format("Vendor[title=%s,\ndescription=%s,\nicon=%s,\ninventory=%s]", title, description, icon,
                 inventory);
     }
 }

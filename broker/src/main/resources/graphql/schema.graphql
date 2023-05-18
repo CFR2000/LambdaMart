@@ -1,5 +1,5 @@
 type Product {
-  class_name: String!
+  className: String!
   classId: ID!
   coarseClassName: String
   imagePath: String

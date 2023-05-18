@@ -31,6 +31,8 @@ services:
 
   broker-db:
     build: ./broker/broker-db
+    volumes:
+      - ./broker/broker-db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: rootPassword
@@ -41,6 +43,14 @@ services:
       interval: 10s
       timeout: 10s
       retries: 10
+
+  mongo-seed:
+    image: mongo:5.0.3
+    volumes:
+      - ./broker/broker-db/data.json:/data.json:ro
+    command: ["mongoimport", "--host", "broker-db", "-u", "root", "-p", "rootPassword", "--authenticationDatabase", "admin", "--db", "broker", "--collection", "Product", "--type", "json", "--file", "/data.json", "--jsonArray"]
+    depends_on:
+      - broker-db
 
   broker:
     build: ./broker
