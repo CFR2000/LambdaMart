@@ -35,7 +35,7 @@ func (r *queryResolver) Vendor(ctx context.Context) (*model.Vendor, error) {
 	vendor := model.Vendor{
 		Title:       "Veggie Gophers",
 		Description: "We sell the best vegetables in town!",
-		Icon:        "https:/localhost:8080/static/gophers.png",
+		Icon:        "https:/veggie-gophers:8080/static/gophers.png",
 		Inventory:   inventory,
 	}
 

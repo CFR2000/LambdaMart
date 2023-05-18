@@ -40,9 +40,9 @@ public class GraphQLProvider {
         return RuntimeWiring.newRuntimeWiring()
                 .type("Query", builder -> builder
                         .dataFetcher("vendors", dataFetchers.getVendorDataFetcher())
-                        .dataFetcher("item", dataFetchers.getItemDataFetcher()))
-                // .dataFetcher("products", dataFetchers.getProductDataFetcher())") TODO: add
-                // this
+                        .dataFetcher("item", dataFetchers.getItemDataFetcher())
+                        .dataFetcher("product", dataFetchers.getProductDataFetcher())
+                        .dataFetcher("products", dataFetchers.getProductsDataFetcher()))
                 .type("Mutation", builder -> builder
                         .dataFetcher("purchase", dataFetchers.getPurchaseDataFetcher()))
                 .build();

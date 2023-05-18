@@ -1,6 +1,12 @@
 package lambdamart.service.broker.models;
 
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+
+@Document(collection = "Product")
 public class Product {
+    @Id
+    private String id;
     private String className;
     private String classId;
     private String coarseClassName;
@@ -11,6 +17,13 @@ public class Product {
     private String volume;
     private String key;
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getClassName() {
         return className;
