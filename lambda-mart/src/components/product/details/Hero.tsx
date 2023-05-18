@@ -1,11 +1,6 @@
 import React, { MouseEventHandler } from "react";
 
-import {
-  GatsbyImage,
-  GatsbyImageProps,
-  ImageDataLike,
-  getImage,
-} from "gatsby-plugin-image";
+import { GatsbyImage, ImageDataLike, getImage } from "gatsby-plugin-image";
 
 import {
   Wrap,
@@ -26,8 +21,8 @@ export type HeroProps = {
 };
 
 const Hero = ({ image, title, description, onBuyNowClick }: HeroProps) => {
-  const [topText, ...desc] = description.split(".");
-  const bottomText = desc.join(".");
+  const [topText, ...desc] = description ? description.split(".") : ["", ""];
+  const bottomText = desc ? desc.join(".") : "";
   const img = getImage(image);
   return (
     <Wrap

@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+// @ts-nocheck
+import React, { SyntheticEvent, useRef, useState } from "react";
 import {
   SimpleGrid,
   GridItem,
@@ -10,6 +11,8 @@ import {
   Button,
   DrawerCloseButton,
   DrawerHeader,
+  useOutsideClick,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import SelectOption from "./SelectOption";
 import { BsFilter } from "react-icons/bs";
@@ -32,15 +35,35 @@ export type FilterType = FilterTypeProps & {
 };
 
 const FilterGroup = ({ filters }: { filters: FilterType[] }) => {
+  const ref = useRef();
   const [isOpen, setIsOpen] = useState(false);
+  useOutsideClick({
+    ref: ref,
+    handler: () => setIsOpen(false),
+  });
   return (
     <>
-      <Button leftIcon={<BsFilter />} onClick={() => setIsOpen(true)}>
-        Filter
-      </Button>
+      <ButtonGroup>
+        <Button leftIcon={<BsFilter />} onClick={() => setIsOpen(true)}>
+          Filter
+        </Button>
+        <Button
+          variant="ghost"
+          mr={3}
+          colorScheme="primary"
+          onClick={() =>
+            filters.forEach((f) =>
+              f.onChange({} as SyntheticEvent<HTMLInputElement>)
+            )
+          }
+        >
+          Clear filters
+        </Button>
+      </ButtonGroup>
       <Drawer isOpen={isOpen} onClose={() => {}}>
         <DrawerOverlay />
-        <DrawerContent>
+
+        <DrawerContent ref={ref}>
           <DrawerCloseButton onClick={() => setIsOpen(false)} />
           <DrawerHeader>Create your account</DrawerHeader>
           <DrawerBody>
@@ -65,15 +88,6 @@ const FilterGroup = ({ filters }: { filters: FilterType[] }) => {
               })}
             </SimpleGrid>
           </DrawerBody>
-          <DrawerFooter>
-            <Button
-              variant="outline"
-              mr={3}
-              onClick={() => console.log("BEEP")}
-            >
-              Filter
-            </Button>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </>

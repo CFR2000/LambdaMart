@@ -3,7 +3,11 @@ import React from "react";
 
 const ProductGrid = ({ children }: { children: React.ReactNode }) => {
   return (
-    <SimpleGrid minChildWidth="300px" spacing="40px">
+    <SimpleGrid
+      minH="75vh"
+      columns={{ base: 1, md: 2, lg: 3, "2xl": 4 }}
+      spacing="40px"
+    >
       {children}
     </SimpleGrid>
   );

@@ -1,11 +1,11 @@
 import React from "react";
-import { Link } from "gatsby";
+import { Link as GatsbyLink } from "gatsby";
 import {
   useColorMode,
   useColorModeValue,
   useDisclosure,
   chakra,
-  Link as ChakraLink,
+  Link,
   VStack,
   CloseButton,
   Button,
@@ -14,6 +14,7 @@ import {
   Spacer,
   IconButton,
   Box,
+  Card,
 } from "@chakra-ui/react";
 import { useViewportScroll } from "framer-motion";
 import { FaSun, FaMoon } from "react-icons/fa";
@@ -34,55 +35,61 @@ const logo = (
 
 const Header: React.FC = () => {
   const { toggleColorMode: toggleMode } = useColorMode();
-  const text = useColorModeValue("dark", "light");
   const SwitchIcon = useColorModeValue(FaMoon, FaSun);
-  const bg = useColorModeValue("white", "gray.800");
   const isScrollUp = useScrollUp();
-  const cl = useColorModeValue("gray.800", "white");
   const mobileNav = useDisclosure();
 
-  const MobileNavContent: React.ReactNode = (
-    <VStack
-      pos="absolute"
-      top={0}
+  const MobileNavContent: React.FC = () => (
+    <Card
+      pos="fixed"
+      top={mobileNav.isOpen ? "4.5rem" : "-8rem"}
       left={0}
       right={0}
-      display={mobileNav.isOpen ? "flex" : "none"}
-      flexDirection="column"
-      p={2}
-      pb={4}
-      m={2}
-      bg={bg}
-      spacing={3}
-      rounded="sm"
-      shadow="sm"
+      variant="elevated"
+      colorScheme="primary"
+      align="center"
+      transition="all 0.3s"
     >
       <CloseButton
         aria-label="Close menu"
         justifySelf="self-start"
         onClick={mobileNav.onClose}
       />
-      <Button w="full" variant="ghost" leftIcon={<AiFillHome />}>
+      <Button
+        as={GatsbyLink}
+        to="/products"
+        w="full"
+        variant="ghost"
+        leftIcon={<AiFillHome />}
+      >
         Store
       </Button>
-      <Button w="full" variant="ghost" leftIcon={<BsFillCameraVideoFill />}>
+      <Button
+        as={GatsbyLink}
+        to="/vendors"
+        w="full"
+        variant="ghost"
+        leftIcon={<BsFillCameraVideoFill />}
+      >
         Vendors
       </Button>
-    </VStack>
+    </Card>
   );
 
   return (
-    <Box height="4.5rem">
-      <chakra.header
-        shadow={isScrollUp ? "md" : undefined}
-        // TODO: Figure out how to get this to work properly
-        // position="sticky"
-        transition="box-shadow 0.2s"
-        bg={bg}
-        w="full"
+    <>
+      <Card
+        height="4.5rem"
+        position="fixed"
+        zIndex="100"
+        w="100%"
+        top={isScrollUp ? "-4.5rem" : "0"}
         overflowY="hidden"
+        variant="filled"
+        borderRadius="0"
+        transition="all 0.3s"
       >
-        <chakra.div h="4.5rem" mx="auto" maxW="1200px">
+        <chakra.header h="100%" w="full">
           <Flex
             w="full"
             h="full"
@@ -91,9 +98,9 @@ const Header: React.FC = () => {
             justifyContent="space-between"
           >
             <Flex align="flex-start">
-              <ChakraLink as={Link} to="/">
+              <Link as={GatsbyLink} to="/">
                 <HStack>{logo}</HStack>
-              </ChakraLink>
+              </Link>
             </Flex>
             <Flex>
               <HStack
@@ -104,36 +111,26 @@ const Header: React.FC = () => {
                   md: "flex",
                 }}
               >
-                <Button
-                  bg={bg}
-                  color="gray.500"
+                <Link
+                  as={GatsbyLink}
+                  to="/products"
+                  colorScheme="gray"
                   display="inline-flex"
                   alignItems="center"
                   fontSize="md"
-                  _hover={{
-                    color: cl,
-                  }}
-                  _focus={{
-                    boxShadow: "none",
-                  }}
                 >
                   Store
-                </Button>
-                <Button
-                  bg={bg}
-                  color="gray.500"
+                </Link>
+                <Link
+                  as={GatsbyLink}
+                  to="/vendors"
+                  colorScheme="gray"
                   display="inline-flex"
                   alignItems="center"
                   fontSize="md"
-                  _hover={{
-                    color: cl,
-                  }}
-                  _focus={{
-                    boxShadow: "none",
-                  }}
                 >
                   Vendors
-                </Button>
+                </Link>
               </HStack>
             </Flex>
             <Spacer />
@@ -145,19 +142,19 @@ const Header: React.FC = () => {
                   md: "flex",
                 }}
               >
-                <Button colorScheme="brand" variant="ghost" size="sm">
+                <Button colorScheme="primary" variant="ghost" size="sm">
                   Sign in
                 </Button>
-                <Button colorScheme="brand" variant="solid" size="sm">
+                <Button colorScheme="primary" variant="solid" size="sm">
                   Sign up
                 </Button>
               </HStack>
               <IconButton
                 size="md"
                 fontSize="lg"
-                aria-label={`Switch to ${text} mode`}
+                aria-label={`Switch colour mode`}
                 variant="ghost"
-                color="current"
+                colorScheme="primary"
                 ml={{
                   base: "0",
                   md: "3",
@@ -182,10 +179,11 @@ const Header: React.FC = () => {
               />
             </Flex>
           </Flex>
-          {MobileNavContent}
-        </chakra.div>
-      </chakra.header>
-    </Box>
+          <MobileNavContent />
+        </chakra.header>
+      </Card>
+      <Box h="4.5rem" />
+    </>
   );
 };
 

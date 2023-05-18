@@ -11,7 +11,14 @@ import FilterGroup, {
   FilterType,
   OptionType,
 } from "../components/filter/FilterGroup";
-import { Box, Stack, Text } from "@chakra-ui/react";
+import {
+  Box,
+  HStack,
+  Stack,
+  Text,
+  useBreakpoint,
+  useBreakpointValue,
+} from "@chakra-ui/react";
 
 export const query = graphql`
   query ProductQuery {
@@ -57,9 +64,6 @@ const toOption: (x: string) => OptionType = (x) => ({
 });
 
 const ProductPage: React.FC = ({ data }: any) => {
-  const product_types = data.allDatasetJson.unique_product_type;
-  const coarse_class_names = data.allDatasetJson.unique_coarse_class_name;
-
   const [varietyFilter, setVarietyFilter] = useQueryParamString("variety", "");
 
   const [categoryFilter, setCategoryFilter] = useQueryParamString(
@@ -68,7 +72,29 @@ const ProductPage: React.FC = ({ data }: any) => {
   );
 
   const [page, setPage] = React.useState<number>(1);
-  const [pageSize, setPageSize] = React.useState<number>(10);
+  const pageSize = useBreakpointValue({ base: 10, lg: 12, "2xl": 16 });
+
+  const products = data.allDatasetJson.nodes.filter(
+    (p: ProductItem) =>
+      (!categoryFilter || p.product_type === categoryFilter) &&
+      (!varietyFilter || p.coarse_class_name === varietyFilter)
+  );
+
+  const product_types = data.allDatasetJson.unique_product_type;
+  const coarse_class_names = [
+    ...new Set(
+      data.allDatasetJson.nodes
+        .filter(
+          (p: ProductItem) =>
+            !categoryFilter || p.product_type == categoryFilter
+        )
+        .map((p: ProductItem) => p.coarse_class_name)
+    ),
+  ];
+
+  if (varietyFilter && !coarse_class_names.includes(varietyFilter)) {
+    setVarietyFilter("");
+  }
 
   const filters: FilterType[] = [
     {
@@ -78,7 +104,7 @@ const ProductPage: React.FC = ({ data }: any) => {
       label: "Variety",
       value: varietyFilter || "",
       onChange: (event: ChangeEvent<HTMLInputElement>) => {
-        setVarietyFilter(event.target.value!);
+        setVarietyFilter(event.target ? event.target.value : "");
       },
     },
     {
@@ -88,31 +114,33 @@ const ProductPage: React.FC = ({ data }: any) => {
       label: "Category",
       value: categoryFilter || "",
       onChange: (event: ChangeEvent<HTMLInputElement>) => {
-        setCategoryFilter(event.target.value);
+        setCategoryFilter(event.target ? event.target.value : "");
       },
     },
   ];
 
-  const products = data.allDatasetJson.nodes.filter(
-    (p: ProductItem) =>
-      (!categoryFilter || p.product_type === categoryFilter) &&
-      (!varietyFilter || p.coarse_class_name === varietyFilter)
-  );
+  const from = pageSize! * (page - 1);
+  const to = pageSize! * page;
+
+  if (from >= products.length) {
+    setPage(Math.ceil(products.length / pageSize!));
+  }
+
   return (
     <Layout>
-      <Box maxW="100%" mx={{ base: "1", md: "16" }}>
+      <Box mx="auto" maxW="9xl" px={{ base: "1", sm: "16" }}>
         <Stack
-          flexDir={"row"}
+          flexDir={{ base: "column", sm: "row" }}
           justifyContent="space-between"
           mx={{ base: "1", md: "8" }}
           my="4"
         >
           <FilterGroup filters={filters} />
-          <Text>There are {products.length} items</Text>
+          <Text>There are {products.length} item(s)</Text>
         </Stack>
         <ProductGrid>
           {products
-            .slice(pageSize * page, pageSize * (page + 1))
+            .slice(from, to)
             .map(
               (
                 {
@@ -130,7 +158,9 @@ const ProductPage: React.FC = ({ data }: any) => {
                   image={image}
                   price="€420.69"
                   rating={(i * i) % 6}
-                  description={description.slice(0, 50) + "..."}
+                  description={
+                    description ? description.slice(0, 50) + "..." : ""
+                  }
                   title={class_name}
                   product_type={product_type}
                   coarse_class_name={coarse_class_name}
@@ -138,15 +168,17 @@ const ProductPage: React.FC = ({ data }: any) => {
               )
             )}
         </ProductGrid>
-        <Pagination
-          defaultCurrent={2}
-          total={products.length}
-          paginationProps={{ display: "flex" }}
-          colorScheme="primary"
-          current={page}
-          onChange={(p) => setPage(p!)}
-          pageSize={pageSize}
-        />
+        <HStack justifyContent={"center"} my="8">
+          <Pagination
+            key={pageSize}
+            total={products.length}
+            paginationProps={{ display: "flex" }}
+            colorScheme="primary"
+            current={page}
+            onChange={(p) => setPage(p!)}
+            pageSize={pageSize}
+          />
+        </HStack>
       </Box>
     </Layout>
   );

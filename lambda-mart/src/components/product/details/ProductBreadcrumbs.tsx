@@ -13,26 +13,19 @@ const ProductBreadcrumbs = ({
 }) => (
   <Breadcrumb>
     <BreadcrumbItem>
-      <BreadcrumbLink as={Link} to="/">
+      <BreadcrumbLink as={Link} to="/products">
         All products
       </BreadcrumbLink>
     </BreadcrumbItem>
     <BreadcrumbItem>
-      <BreadcrumbLink
-        as={Link}
-        to={`/?product=${product.replaceAll(" ", "-").toLowerCase()}`}
-      >
+      <BreadcrumbLink as={Link} to={`/products/?category=${product}`}>
         {product}
       </BreadcrumbLink>
     </BreadcrumbItem>
     <BreadcrumbItem>
       <BreadcrumbLink
         as={Link}
-        to={`/?product=${product
-          .replaceAll(" ", "-")
-          .toLowerCase()}&category=${category
-          .replaceAll(" ", "-")
-          .toLowerCase()}`}
+        to={`/products/?category=${product}&variety=${category}`}
       >
         {category}
       </BreadcrumbLink>

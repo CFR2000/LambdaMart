@@ -10,17 +10,6 @@ const IndexPage: React.FC<PageProps> = (props) => {
   const toast = useToast();
   return (
     <Layout>
-      <Box maxW="3xl" marginInline="auto">
-        {/* <Text>Product: {product || "Nothing"}</Text> */}
-        <Button
-          as={Link}
-          to="/fruits/apples/demo-apple"
-          marginInline="auto"
-          variant="link"
-        >
-          Go to demo page
-        </Button>
-      </Box>
       <Box maxW="4xl" marginInline="auto">
         <GridList
           title="Get products"
