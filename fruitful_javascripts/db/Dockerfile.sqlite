@@ -1,0 +1,15 @@
+# For sqlite service
+FROM node:14-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN apk update && \
+    apk add --no-cache sqlite && \
+    npm install
+
+# Copy the contents of the current directory (which is ./db in the docker-compose context) to the /app directory in the container
+COPY . .
+
+CMD ["node", "init.js"]

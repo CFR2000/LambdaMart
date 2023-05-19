@@ -1,0 +1,21 @@
+version: '3'
+services:
+  sqlite-service:
+    build:
+      context: ./db
+      dockerfile: Dockerfile.sqlite
+    volumes:
+      - ./data:/data
+    ports:
+      - 8083:8083
+
+  resolvers-service:
+    build:
+      context: ./src
+      dockerfile: Dockerfile
+    volumes:
+      - ./data:/data
+    ports:
+      - 8084:8084 # Updated port mapping to avoid conflicts
+    depends_on:
+      - sqlite-service
