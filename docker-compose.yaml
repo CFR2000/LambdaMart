@@ -70,43 +70,55 @@ services:
     ports:
       - 8083:8083
 
-
-  broker-db:
-    build: ./broker/broker-db
+  
+  resolvers-service:
+    build:
+      context: ./fruitful_javascripts/src
+      dockerfile: Dockerfile
     volumes:
-      - ./broker/broker-db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootPassword
+      - ./fruitful_javascripts/data:/data
     ports:
-      - 27017:27017
-    healthcheck:
-      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
-      timeout: 10s
-      retries: 10
-
-  mongo-seed:
-    image: mongo:5.0.3
-    volumes:
-      - ./broker/broker-db/data.json:/data.json:ro
-    command: ["mongoimport", "--host", "broker-db", "-u", "root", "-p", "rootPassword", "--authenticationDatabase", "admin", "--db", "broker", "--collection", "Product", "--type", "json", "--file", "/data.json", "--jsonArray"]
+      - 8084:8084
     depends_on:
-      - broker-db
+      - sqlite-service
+
+
+  # broker-db:
+  #   build: ./broker/broker-db
+  #   volumes:
+  #     - ./broker/broker-db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: rootPassword
+  #   ports:
+  #     - 27017:27017
+  #   healthcheck:
+  #     test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
+  #     interval: 10s
+  #     timeout: 10s
+  #     retries: 10
+
+  # mongo-seed:
+  #   image: mongo:5.0.3
+  #   volumes:
+  #     - ./broker/broker-db/data.json:/data.json:ro
+  #   command: ["mongoimport", "--host", "broker-db", "-u", "root", "-p", "rootPassword", "--authenticationDatabase", "admin", "--db", "broker", "--collection", "Product", "--type", "json", "--file", "/data.json", "--jsonArray"]
+  #   depends_on:
+  #     - broker-db
 
   
-  Now update the broker service to include fruitful_javascripts
-  broker:
-    build: ./broker
-    ports:
-      - 8081:8081
-    environment:
-      SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
-      VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query,fruitful-javascripts=http://resolvers-service:8084/query,meaty-pythons=http://meaty-pythons:8082/query
-    depends_on:
-      broker-db:
-        condition: service_healthy
-      veggie-gophers-db:
-        condition: service_healthy
-      resolvers-service:
-        condition: service_started
+  # Now update the broker service to include fruitful_javascripts
+  # broker:
+  #   build: ./broker
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
+  #     VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query,fruitful-javascripts=http://resolvers-service:8084/query,meaty-pythons=http://meaty-pythons:8082/query
+  #   depends_on:
+  #     broker-db:
+  #       condition: service_healthy
+  #     veggie-gophers-db:
+  #       condition: service_healthy
+  #     resolvers-service:
+  #       condition: service_started
