@@ -1,0 +1,19 @@
+{
+    "name": "sqlite-service",
+    "version": "1.0.0",
+    "description": "",
+    "main": "init.js",
+    "type": "module",
+    "scripts": {
+      "start": "node init.js",
+      "format": "prettier --write ."
+    },
+    "dependencies": {
+      "csv-parser": "^3.0.0",
+      "sqlite3": "^5.1.6"
+    },
+    "devDependencies": {
+      "prettier": "^2.8.8"
+    }
+  }
+  

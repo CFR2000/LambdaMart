@@ -1,0 +1,26 @@
+{
+  "name": "resolvers-service",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "format": "prettier --write ."
+  },
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "author": "CFR2000",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "sqlite3": "^5.0.2",
+    "apollo-server-express": "^3.6.0",
+    "graphql": "^15.7.2"
+  },
+  "devDependencies": {
+    "prettier": "^2.4.1"
+  }
+}

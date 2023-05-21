@@ -1,8 +1,6 @@
 # Ignore JSON files
-*.json
 
 # Ignore package lock files
-package-lock.json
 yarn.lock
 
 # Ignore node_modules directory
