@@ -28,6 +28,48 @@ services:
     depends_on:
       veggie-gophers-db:
         condition: service_healthy
+  
+
+
+  meaty-pythons-db:
+    build:
+      context: ./meaty_pythons/db
+      dockerfile: Dockerfile.redis
+    volumes:
+      - ./meaty_pythons/db/data:/data
+      - ./meaty_pythons/db/items.csv:/items.csv
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: [ "CMD-SHELL", "redis-cli ping || exit 1" ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  meaty-pythons:
+    build:
+      context: ./meaty_pythons/src
+      dockerfile: Dockerfile.app
+    volumes:
+      - ./meaty_pythons:/app
+    depends_on:
+      - meaty-pythons-db
+    environment:
+      REDIS_URL: redis://meaty-pythons-db:6379
+    ports:
+      - 8082:8082
+
+
+  sqlite-service:
+    build:
+      context: ./fruitful_javascripts/db
+      dockerfile: Dockerfile.sqlite
+    volumes:
+      - ./fruitful_javascripts/data:/data
+    ports:
+      - 8083:8083
+
 
   broker-db:
     build: ./broker/broker-db
@@ -52,15 +94,19 @@ services:
     depends_on:
       - broker-db
 
+  
+  Now update the broker service to include fruitful_javascripts
   broker:
     build: ./broker
     ports:
       - 8081:8081
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
-      VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query
+      VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query,fruitful-javascripts=http://resolvers-service:8084/query,meaty-pythons=http://meaty-pythons:8082/query
     depends_on:
       broker-db:
         condition: service_healthy
       veggie-gophers-db:
         condition: service_healthy
+      resolvers-service:
+        condition: service_started
