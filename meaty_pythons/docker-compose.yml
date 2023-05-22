@@ -1,79 +1,77 @@
 # # This Docker Compose file is used to start the Redis server and the Python script at the same time. 
 # # It ensures that both services can communicate with each other.
 
-version: '3.8'
+# version: '3.8'
 
-services:
-  meaty-pythons-db:
-    build:
-      context: ./meaty-pythons/db
-      dockerfile: Dockerfile.redis
-    volumes:
-      - ./meaty-pythons/db/data:/data
-      - ./meaty-pythons/db/items.csv:/items.csv
-    command: ["redis-server", "--appendonly", "yes"]
-    ports:
-      - 6379:6379
-    healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping || exit 1" ]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-
-  meaty-pythons:
-    build:
-      context: ./meaty-pythons/src
-      dockerfile: Dockerfile.app
-    volumes:
-      - .:/app
-    depends_on:
-      - meaty-pythons-db
-    environment:
-      REDIS_URL: redis://meaty-pythons-db:6379
-    ports:
-      - 8082:8082
-
-  broker-db:
-    build: ./broker/broker-db
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootPassword
-    ports:
-      - 27017:27017
-
-  broker:
-    build: ./broker
-    ports:
-      - 8081:8081
-    environment:
-      SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
-    depends_on:
-      - broker-db
-
-
-
-
-# version: '3'
 # services:
-#   redis:
+#   meaty-pythons-db:
 #     build:
-#       context: ./db
+#       context: ./meaty-pythons/db
 #       dockerfile: Dockerfile.redis
 #     volumes:
-#       - ./data:/data
+#       - ./meaty-pythons/db/data:/data
+#       - ./meaty-pythons/db/items.csv:/items.csv
 #     command: ["redis-server", "--appendonly", "yes"]
+#     ports:
+#       - 6379:6379
+#     healthcheck:
+#       test: [ "CMD-SHELL", "redis-cli ping || exit 1" ]
+#       interval: 30s
+#       timeout: 5s
+#       retries: 5
 
-#   app:
+#   meaty-pythons:
 #     build:
-#       context: ./src
+#       context: ./meaty-pythons/src
 #       dockerfile: Dockerfile.app
 #     volumes:
 #       - .:/app
 #     depends_on:
-#       - redis
+#       - meaty-pythons-db
+#     environment:
+#       REDIS_URL: redis://meaty-pythons-db:6379
 #     ports:
 #       - 8082:8082
+
+#   broker-db:
+#     build: ./broker/broker-db
 #     environment:
-#       - REDIS_HOST=redis
-#       - REDIS_PORT=6379
+#       MONGO_INITDB_ROOT_USERNAME: root
+#       MONGO_INITDB_ROOT_PASSWORD: rootPassword
+#     ports:
+#       - 27017:27017
+
+#   broker:
+#     build: ./broker
+#     ports:
+#       - 8081:8081
+#     environment:
+#       SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
+#     depends_on:
+#       - broker-db
+
+
+
+services:
+  redis:
+    build:
+      context: ./db
+      dockerfile: Dockerfile.redis
+    volumes:
+      - ./data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  app:
+    build:
+      context: ./src
+      dockerfile: Dockerfile.app
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    ports:
+      - 8082:8082
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
 

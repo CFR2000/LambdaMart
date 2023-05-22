@@ -19,4 +19,5 @@ COPY wait-for-redis.sh /app/src/wait-for-redis.sh
 EXPOSE 8082
 
 # Run the shell script when the container launches
-CMD ["/bin/bash", "/app/start.sh"]
+CMD ["/bin/bash", "/app/src/start.sh"]
+
