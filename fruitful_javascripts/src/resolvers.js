@@ -131,7 +131,7 @@ const startApolloServer = async () => {
   await apolloServer.start();
 
   const app = express();
-  apolloServer.applyMiddleware({ app, path: "/query" });
+  apolloServer.applyMiddleware({ app, path: "/" });
   app.use("/static", express.static("public"));
 
   const port = process.env.RESOLVERS_PORT || 8084;

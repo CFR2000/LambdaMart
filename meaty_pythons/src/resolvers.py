@@ -15,6 +15,8 @@ config.read('/app/config.ini')
 # Replace hardcoded Redis server and port values with values from config.ini
 redis_client = Redis(host=config.get('REDIS', 'HOST'), port=config.get('REDIS', 'PORT'), db=0)
 
+query = QueryType()
+mutation = MutationType()
 
 type_defs = gql("""
     type InventoryItem {
@@ -46,8 +48,7 @@ type_defs = gql("""
     }
 """)
 
-query = QueryType()
-mutation = MutationType()
+
 
 
 @query.field("vendor")
@@ -58,8 +59,8 @@ def resolve_vendor(*_):
         if item_data:
             inventory.append({
                 "id": key.decode('utf-8'),
-                "stockLevel": int(item_data[b'stock_level']),
-                "price": float(item_data[b'price'])
+                "stockLevel": int(item_data['stockLevel'.encode()]),
+                "price": float(item_data['price'.encode()])
             })
         else:
             print(f"Invalid data for key: {key}")
@@ -74,16 +75,14 @@ def resolve_vendor(*_):
     return vendor
 
 
-# restock = MutationType()
-
 @query.field("item")
 def resolve_item(*_, id):
     item_data = redis_client.hgetall(id)
     if item_data:
         return {
             "id": id,
-            "stockLevel": int(item_data[b'stock_level']),
-            "price": float(item_data[b'price'])
+            "stockLevel": int(item_data['stockLevel'.encode()]),
+            "price": float(item_data['price'.encode()])
         }
     else:
         return None
@@ -92,14 +91,15 @@ def resolve_item(*_, id):
 def resolve_purchase(*_, id, quantity):
     item_data = redis_client.hgetall(id)
     if item_data:
-        if int(item_data[b'stock_level']) < quantity:
+        if int(item_data['stockLevel'.encode()]) < quantity:
             return "INSUFFICIENT_STOCK"
         else:
-            item_data[b'stock_level'] = str(int(item_data[b'stock_level']) - quantity)
+            item_data['stockLevel'.encode()] = str(int(item_data['stockLevel'.encode()]) - quantity).encode()
             redis_client.hmset(id, item_data)
             return "SUCCESS"
     else:
         return "ITEM_NOT_FOUND"
+
 
 
 # 
@@ -111,7 +111,7 @@ app = FastAPI(middleware=[
 ])
 
 # Mount the GraphQL app at /query
-app.add_route("/query", GraphQL(schema, debug=True))
+app.add_route("/", GraphQL(schema, debug=True))
 
 # Mount static files at /static
 app.mount("/static", StaticFiles(directory="/app/static"), name="static")
