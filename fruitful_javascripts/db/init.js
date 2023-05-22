@@ -3,7 +3,7 @@ import fs from "fs";
 import csv from "csv-parser";
 
 const db = new sqlite3.Database(
-  "/data/fruitful.db", // <-- update this line
+  "/data/fruitful.db",
   sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE,
   (err) => {
     if (err) {
@@ -24,19 +24,29 @@ db.serialize(() => {
       }
       console.log("Table created successfully");
 
-      fs.createReadStream('./items.csv') // Update this line
+      fs.createReadStream('./items.csv')
         .pipe(csv())
         .on("data", (row) => {
-          db.run(
-            "INSERT INTO inventory(id, name, price, stock_level, image_url) VALUES(?, ?, ?, ?, ?)",
-            [row.id, row.name, row.price, row.stock_level, row.image_url],
-            (err) => {
-              if (err) {
-                console.log("Error inserting data", err);
-                return;
-              }
+          db.get("SELECT * FROM inventory WHERE id = ?", [row.id], (err, data) => {
+            if (err) {
+              console.log("Error checking data", err);
+              return;
             }
-          );
+
+            // If data doesn't exist, then insert it into the database
+            if (!data) {
+              db.run(
+                "INSERT INTO inventory(id, name, price, stock_level, image_url) VALUES(?, ?, ?, ?, ?)",
+                [row.id, row.name, row.price, row.stock_level, row.image_url],
+                (err) => {
+                  if (err) {
+                    console.log("Error inserting data", err);
+                    return;
+                  }
+                }
+              );
+            }
+          });
         })
         .on("end", () => {
           console.log("CSV file successfully processed");
