@@ -30,7 +30,9 @@ services:
         condition: service_healthy
 
   meaty-pythons-db:
-    image: redis
+    build:
+      context: ./meaty_pythons/db
+      dockerfile: Dockerfile.redis
     ports:
       - "6379:6379"
     volumes:
@@ -49,13 +51,19 @@ services:
       dockerfile: Dockerfile.app
     volumes:
       - ./meaty_pythons/src:/app
+      - ./meaty_pythons/db:/app/db
+      - ./meaty_pythons/static:/app/static
+      - ./meaty_pythons/config.ini:/app/config.ini
     depends_on:
       meaty-pythons-db:
-        condition: service_healthy
+        condition: service_healthy  # changed from 'service_started'
     environment:
-      REDIS_URL: redis://meaty-pythons-db:6379
+      REDIS_URL: redis://meaty-pythons-db:6379/0
     ports:
       - 8082:8082
+
+
+
 
   fruitful_javascripts_db:
     build:
@@ -65,7 +73,6 @@ services:
       - ./fruitful_javascripts/data:/data
     ports:
       - 8083:8083
-    # Add healthcheck here
 
   fruitful_javascripts:
     build:
@@ -77,7 +84,6 @@ services:
       - 8084:8084
     depends_on:
       - fruitful_javascripts_db
-      # Add condition here
 
   broker-db:
     build: ./broker/broker-db
@@ -115,4 +121,6 @@ services:
       veggie-gophers-db:
         condition: service_healthy
       fruitful_javascripts_db:
+        condition: service_started
+      meaty-pythons-db:
         condition: service_started
