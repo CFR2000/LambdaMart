@@ -56,7 +56,7 @@ services:
       - ./meaty_pythons/config.ini:/app/config.ini
     depends_on:
       meaty-pythons-db:
-        condition: service_healthy  # changed from 'service_started'
+        condition: service_healthy 
     environment:
       REDIS_URL: redis://meaty-pythons-db:6379/0
     ports:
@@ -65,7 +65,7 @@ services:
 
 
 
-  fruitful_javascripts_db:
+  fruitful-javascripts_db:
     build:
       context: ./fruitful_javascripts/db
       dockerfile: Dockerfile.sqlite
@@ -74,7 +74,7 @@ services:
     ports:
       - 8083:8083
 
-  fruitful_javascripts:
+  fruitful-javascripts:
     build:
       context: ./fruitful_javascripts/src
       dockerfile: Dockerfile
@@ -83,7 +83,7 @@ services:
     ports:
       - 8084:8084
     depends_on:
-      - fruitful_javascripts_db
+      - fruitful-javascripts_db
 
   broker-db:
     build: ./broker/broker-db
@@ -114,13 +114,13 @@ services:
       - 8081:8081
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
-      VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query,fruitful-javascripts=http://fruitful_javascripts:8084/,meaty-pythons=http://meaty-pythons:8082/
+      VENDOR_URLS: fruitful-javascripts=http://fruitful-javascripts:8084/query, meaty-pythons=http://meaty-pythons:8082/, veggie-gophers=http://veggie-gophers:8080/query
     depends_on:
       broker-db:
         condition: service_healthy
       veggie-gophers-db:
         condition: service_healthy
-      fruitful_javascripts_db:
+      fruitful-javascripts_db:
         condition: service_started
       meaty-pythons-db:
         condition: service_started

@@ -25,9 +25,11 @@ public class GraphQLVendorClientFactory {
     public void init() {
         LOGGER.info("Initializing GraphQLVendorClientFactory");
         String vendorUrlsStr = env.getProperty("vendor.urls");
+        LOGGER.info("vendorUrlsStr: " + vendorUrlsStr);
         if (vendorUrlsStr != null) {
             String[] vendorUrlPairs = vendorUrlsStr.split(",");
             for (String vendorUrlPair : vendorUrlPairs) {
+                LOGGER.info("vendorUrlPair: " + vendorUrlPair);
                 String[] parts = vendorUrlPair.split("=");
                 if (parts.length == 2) {
                     String vendorId = parts[0].trim();
