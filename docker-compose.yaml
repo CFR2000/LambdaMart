@@ -114,7 +114,7 @@ services:
       - 8081:8081
     environment:
       SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
-      VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query,fruitful-javascripts=http://fruitful_javascripts:8084/query,meaty-pythons=http://meaty-pythons:8082/query
+      VENDOR_URLS: veggie-gophers=http://veggie-gophers:8080/query,fruitful-javascripts=http://fruitful_javascripts:8084/,meaty-pythons=http://meaty-pythons:8082/
     depends_on:
       broker-db:
         condition: service_healthy
