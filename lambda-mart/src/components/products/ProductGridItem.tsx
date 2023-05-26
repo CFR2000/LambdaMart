@@ -58,7 +58,7 @@ const ProductGridItem = ({
   product_type,
   coarse_class_name,
 }: ProductGridItemProps) => {
-  const bp = useBreakpointValue({ base: false, md: true });
+  const bp = useBreakpointValue({ base: true, sm: false, md: true });
   const img = getImage(image)!;
 
   return (
@@ -69,6 +69,8 @@ const ProductGridItem = ({
         variant="outline"
       >
         <Box
+          w="150px"
+          h="150px"
           minW="150px"
           minH="150px"
           alignSelf="center"
@@ -85,23 +87,30 @@ const ProductGridItem = ({
               as={GatsbyLink}
               to={`/${product_type}/${coarse_class_name}/${title}/`}
             >
-              {title}
+              <Heading
+                size={{ base: "sm", lg: "md" }}
+                fontWeight={"500"}
+                noOfLines={1}
+                title={title}
+              >
+                {title}
+              </Heading>
             </Link>
-            <Heading size={{ base: "sm", lg: "md" }} noOfLines={1}></Heading>
 
-            <Box h={{ base: "8", lg: "10" }} maxW="100%">
-              {bp && (
+            {bp && (
+              <Box h={{ base: "8", lg: "10" }} maxW="100%">
                 <Text
                   pt="2"
                   noOfLines={1}
                   //   maxW="100%"
-                  fontSize={{ base: "xs", lg: "sm" }}
+                  fontSize={{ base: "sm", lg: "md" }}
                   lineHeight={{ base: "1", lg: "1.75" }}
+                  title={description}
                 >
                   {description}
                 </Text>
-              )}
-            </Box>
+              </Box>
+            )}
           </CardBody>
 
           <CardFooter py={0}>

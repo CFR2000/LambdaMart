@@ -1,5 +1,5 @@
+import React from "react";
 import { FormControl, FormLabel, Select } from "@chakra-ui/react";
-import * as React from "react";
 import { FilterTypeProps } from "./FilterGroup";
 
 const SelectOption = ({ options, label, value, onChange }: FilterTypeProps) => {

@@ -8,17 +8,11 @@ import Pagination from "@choc-ui/paginator";
 import ProductGridItem from "../components/products/ProductGridItem";
 import { IGatsbyImageData } from "gatsby-plugin-image";
 import FilterGroup, {
+  CheckboxType,
   FilterType,
   OptionType,
 } from "../components/filter/FilterGroup";
-import {
-  Box,
-  HStack,
-  Stack,
-  Text,
-  useBreakpoint,
-  useBreakpointValue,
-} from "@chakra-ui/react";
+import { Box, HStack, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 
 export const query = graphql`
   query ProductQuery {
@@ -76,7 +70,7 @@ const ProductPage: React.FC = ({ data }: any) => {
 
   const products = data.allDatasetJson.nodes.filter(
     (p: ProductItem) =>
-      (!categoryFilter || p.product_type === categoryFilter) &&
+      (!categoryFilter || categoryFilter.split("|").includes(p.product_type)) &&
       (!varietyFilter || p.coarse_class_name === varietyFilter)
   );
 
@@ -86,7 +80,8 @@ const ProductPage: React.FC = ({ data }: any) => {
       data.allDatasetJson.nodes
         .filter(
           (p: ProductItem) =>
-            !categoryFilter || p.product_type == categoryFilter
+            !categoryFilter ||
+            categoryFilter.split("|").includes(p.product_type)
         )
         .map((p: ProductItem) => p.coarse_class_name)
     ),
@@ -96,11 +91,11 @@ const ProductPage: React.FC = ({ data }: any) => {
     setVarietyFilter("");
   }
 
-  const filters: FilterType[] = [
+  const filters: (FilterType | CheckboxType)[] = [
     {
+      type: "select",
       id: "variety",
       options: coarse_class_names.map(toOption),
-      type: "select",
       label: "Variety",
       value: varietyFilter || "",
       onChange: (event: ChangeEvent<HTMLInputElement>) => {
@@ -108,13 +103,26 @@ const ProductPage: React.FC = ({ data }: any) => {
       },
     },
     {
+      type: "checkbox",
       id: "category",
-      options: product_types.map(toOption),
-      type: "select",
       label: "Category",
-      value: categoryFilter || "",
+      value: categoryFilter.split("|") || "",
+      options: product_types.map(toOption),
       onChange: (event: ChangeEvent<HTMLInputElement>) => {
-        setCategoryFilter(event.target ? event.target.value : "");
+        if (!event.target) {
+          setCategoryFilter("");
+        } else {
+          const choices = categoryFilter.split("|");
+          if (event.target.checked) {
+            choices.push(event.target.value);
+          } else {
+            choices.splice(choices.indexOf(event.target.value), 1);
+          }
+          console.log(choices);
+          setCategoryFilter(
+            event.target ? choices.filter((v) => v != "").join("|") : ""
+          );
+        }
       },
     },
   ];
@@ -158,9 +166,7 @@ const ProductPage: React.FC = ({ data }: any) => {
                   image={image}
                   price="€420.69"
                   rating={(i * i) % 6}
-                  description={
-                    description ? description.slice(0, 50) + "..." : ""
-                  }
+                  description={description ? description.split(".")[0] : ""}
                   title={class_name}
                   product_type={product_type}
                   coarse_class_name={coarse_class_name}

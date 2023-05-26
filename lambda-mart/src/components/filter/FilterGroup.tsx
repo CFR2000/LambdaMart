@@ -14,8 +14,10 @@ import {
   useOutsideClick,
   ButtonGroup,
 } from "@chakra-ui/react";
-import SelectOption from "./SelectOption";
 import { BsFilter } from "react-icons/bs";
+
+import CheckboxOptions from "./CheckboxOptions";
+import SelectOption from "./SelectOption";
 
 export type OptionType = {
   value: string;
@@ -34,7 +36,23 @@ export type FilterType = FilterTypeProps & {
   id: string;
 };
 
-const FilterGroup = ({ filters }: { filters: FilterType[] }) => {
+export type CheckboxTypeProps = {
+  type: "checkbox";
+  label: string;
+  value: (string | number)[];
+  options: { value: string | number; label: string }[];
+  onChange: React.ReactEventHandler<HTMLElement>;
+};
+
+export type CheckboxType = CheckboxTypeProps & {
+  id: string;
+};
+
+const FilterGroup = ({
+  filters,
+}: {
+  filters: (FilterType | CheckboxType)[];
+}) => {
   const ref = useRef();
   const [isOpen, setIsOpen] = useState(false);
   useOutsideClick({
@@ -80,6 +98,12 @@ const FilterGroup = ({ filters }: { filters: FilterType[] }) => {
                     return (
                       <GridItem key={id}>
                         <SelectOption {...filter} />
+                      </GridItem>
+                    );
+                  case "checkbox":
+                    return (
+                      <GridItem key={id}>
+                        <CheckboxOptions {...filter} />
                       </GridItem>
                     );
                   default:
