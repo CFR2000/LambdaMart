@@ -67,7 +67,7 @@ def resolve_vendor(*_):
 
     vendor = {
         "title": "Meaty Pythons",
-        "description": "We sell the best limbless reptillion meat in town!",
+        "description": "We sell the best limbless reptilian meat in town!",
         "icon": "http://localhost:8082/static/python.png",
         "inventory": inventory,
     }
