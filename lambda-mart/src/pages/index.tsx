@@ -1,5 +1,5 @@
 import React from "react";
-import { HeadFC, Link, PageProps } from "gatsby";
+import { HeadFC, Link, PageProps, graphql } from "gatsby";
 
 import { Button, Box, useToast } from "@chakra-ui/react";
 import GridList from "../components/presentation/GridList";
@@ -23,7 +23,10 @@ const IndexPage: React.FC<PageProps> = (props) => {
             </span>
           }
           onClickCTA={() => {
-            toast({ title: "CLICK", description: "Well done, great job!" });
+            toast({
+              title: "CLICK",
+              description: "Well done, great job!",
+            });
           }}
           features={[
             {

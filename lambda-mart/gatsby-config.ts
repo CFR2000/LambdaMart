@@ -28,7 +28,6 @@ const config: GatsbyConfig = {
         "gatsby-transformer-json",
         fileSystem("images", "./src/images/", "images"),
         fileSystem("pages", "./src/pages/", "pages"),
-        fileSystem("dataset", "./data/", "dataset"),
         plugin("gatsby-source-graphql", {
             typeName: "Broker",
             fieldName: "broker",
