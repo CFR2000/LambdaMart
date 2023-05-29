@@ -15,10 +15,11 @@
   "author": "CFR2000",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.17.1",
-    "sqlite3": "^5.0.2",
     "apollo-server-express": "^3.6.0",
-    "graphql": "^15.7.2"
+    "express": "^4.17.1",
+    "graphql": "^15.7.2",
+    "graphql-request": "^6.1.0",
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
     "prettier": "^2.4.1"

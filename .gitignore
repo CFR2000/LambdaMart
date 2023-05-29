@@ -38,3 +38,5 @@ GroceryStoreDataset
 *.rdb
 
 node_modules/
+*.rdb
+*.aof

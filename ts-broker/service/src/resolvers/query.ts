@@ -1,39 +1,10 @@
-import request, { gql } from "graphql-request";
-
 import {
   QueryProductArgs,
   QueryProductsArgs,
-  Product,
   QueryItemArgs,
-  VendorResolvers,
-  InventoryItemResolvers,
 } from "../types/generated_types";
 import { Context } from "../types/types";
-
-const asList = (arr: any | any[]) =>
-  (Array.isArray(arr) ? arr : [arr]).filter(
-    (x) => Boolean(x) && x !== "null" && x !== "undefined"
-  );
-
-const getFilter = (key: keyof Product, values?: (string | number)[]) =>
-  values && values.length > 0 ? { [key]: { $in: values } } : {};
-
-const getInventory = async (url: string) => {
-  const query = gql`
-    query GetInventory {
-      vendor {
-        inventory {
-          id
-          price
-          stockLevel
-        }
-      }
-    }
-  `;
-  const data = await request<{ vendor: VendorResolvers }>(url, query);
-
-  return (data && data.vendor && data.vendor.inventory) || [];
-};
+import { getFilter, asList, getInventory, getItem } from "./utils.js";
 
 /**
  * `product` is a resolver function that returns a single product
@@ -42,10 +13,10 @@ const getInventory = async (url: string) => {
  * @param context The context object, containing the database connection
  * @returns Product
  */
-const product = async (_, args: QueryProductArgs, { db }: Context) => {
+async function product(_, args: QueryProductArgs, { db }: Context) {
   const products = db.collection("Product");
   return await products.findOne({ classId: { $eq: args.classId } });
-};
+}
 
 /**
  * `products` is a resolver function that returns a list of products
@@ -54,7 +25,7 @@ const product = async (_, args: QueryProductArgs, { db }: Context) => {
  * @param context The context object, containing the database connection
  * @returns Product[]
  */
-const products = async (_, args: QueryProductsArgs, { db }: Context) => {
+async function products(_, args: QueryProductsArgs, { db }: Context) {
   const products = db.collection("Product");
 
   const productType = getFilter("productType", asList(args.productTypes));
@@ -67,7 +38,7 @@ const products = async (_, args: QueryProductsArgs, { db }: Context) => {
   return await products
     .find({ ...productType, ...coarseClassName, ...id })
     .toArray();
-};
+}
 
 /**
  * `vendors` is a resolver function that returns a list of vendors
@@ -76,8 +47,8 @@ const products = async (_, args: QueryProductsArgs, { db }: Context) => {
  * @param context The context object, containing the database connection
  * @returns Vendor[]
  */
-const vendors = async (_, __, { db }: Context) => {
-  const vendors = await db.collection("vendors").find({}).toArray();
+async function vendors(_, __, { db }: Context) {
+  const vendors = await db.collection("Vendor").find({}).toArray();
 
   return await Promise.all(
     (vendors || []).map(async (vendor) => ({
@@ -85,7 +56,7 @@ const vendors = async (_, __, { db }: Context) => {
       ...vendor,
     }))
   );
-};
+}
 
 /**
  * `item` is a resolver function that returns a single item
@@ -94,24 +65,13 @@ const vendors = async (_, __, { db }: Context) => {
  * @param context The context object, containing the database connection
  * @returns InventoryItem
  */
-const item = async (_, args: QueryItemArgs, { db }: Context) => {
+async function item(_, args: QueryItemArgs, { db }: Context) {
   const { vendorId, itemId } = args;
   const vendor = await db
-    .collection("vendors")
+    .collection("Vendor")
     .findOne({ vendorId: { $eq: vendorId } });
 
-  console.log(`vendor: ${JSON.stringify(vendor)}`);
-  const query = gql`
-  query {
-    item(id: ${itemId}) {
-      id
-      price
-      stockLevel
-    }
-  }`;
-
-  return (await request<{ item: InventoryItemResolvers }>(vendor.url, query))
-    .item;
-};
+  return getItem(vendor.url, itemId);
+}
 
 export default { product, products, vendors, item };

@@ -19,5 +19,6 @@ export const typeDef = gql`
     SUCCESS
     INSUFFICIENT_STOCK
     ITEM_NOT_FOUND
+    VENDOR_NOT_FOUND
   }
 `;

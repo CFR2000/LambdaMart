@@ -1,5 +1,6 @@
 import express from "express";
 import { ApolloServer, gql } from "apollo-server-express";
+import request, { gql as req_gql } from "graphql-request";
 import sqlite3 from "sqlite3";
 
 // Create a new SQLite database connection
@@ -13,7 +14,6 @@ const db = new sqlite3.Database(
     console.log("Connected to the fruitful.db SQLite database.");
   },
 );
-
 
 const typeDefs = gql`
   type InventoryItem {
@@ -50,17 +50,20 @@ const resolvers = {
   Query: {
     vendor: (_, __, { db }) => {
       return {
-        title: "Fruitful Javascripts",
+        title: "Fruitful JavaScripts",
         description: "We sell the best fruits in town!",
         icon: "http://localhost:8084/static/fruits.png",
         inventory: new Promise((resolve, reject) => {
           // Fetch inventory data from the database
           db.all("SELECT * FROM inventory", (err, rows) => {
             if (err) reject(err);
-            else resolve(rows.map(row => ({
-              ...row,
-              stockLevel: row.stock_level,
-            })));
+            else
+              resolve(
+                rows.map(row => ({
+                  ...row,
+                  stockLevel: row.stock_level,
+                })),
+              );
           });
         }),
       };
@@ -70,10 +73,11 @@ const resolvers = {
         // Fetch item data from the database based on ID
         db.get("SELECT * FROM inventory WHERE id = ?", [id], (err, row) => {
           if (err) reject(err);
-          else resolve({
-            ...row,
-            stockLevel: row.stock_level,
-          });
+          else
+            resolve({
+              ...row,
+              stockLevel: row.stock_level,
+            });
         });
       });
     },
@@ -119,8 +123,6 @@ const resolvers = {
   },
 };
 
-
-
 const startApolloServer = async () => {
   const apolloServer = new ApolloServer({
     typeDefs,
@@ -140,6 +142,40 @@ const startApolloServer = async () => {
   });
 };
 
-startApolloServer().catch((err) => {
+const registerService = async (brokerUrl, params) => {
+  const mutation = req_gql`#graphql
+    mutation Mutation(
+        $vendorId: ID!
+        $url: String!
+        $title: String!
+        $description: String!
+        $icon: String!
+        ) {
+            registerVendor(
+                vendorId: $vendorId
+                url: $url
+                title: $title
+                description: $description
+                icon: $icon
+            )
+    }
+  `;
+  console.log(`Registering service with params: ${JSON.stringify(params)}`);
+  const result = await request(brokerUrl, mutation, params);
+  console.log(`Registered service with result: ${result.registerVendor}`);
+};
+
+startApolloServer().catch(err => {
   console.error("Error starting Apollo Server:", err);
+});
+
+const brokerUrl = process.env.BROKER_URL;
+
+// Register the vendor service with the broker
+registerService(brokerUrl, {
+  vendorId: "fruitful-javascripts",
+  url: "http://fruitful-javascripts:8084",
+  title: "Fruitful JavaScripts",
+  description: "We sell the best fruits in town!",
+  icon: "http://fruitful-javascripts:8084/static/fruits.png",
 });

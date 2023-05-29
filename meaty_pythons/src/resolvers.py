@@ -1,24 +1,46 @@
-import configparser
-from ariadne import ObjectType, EnumType, QueryType, MutationType, gql, make_executable_schema
-from ariadne.asgi import GraphQL
-from redis import Redis
+import os
 import json
+import configparser
+from logging import Logger
+
+from ariadne import (
+    ObjectType,
+    EnumType,
+    QueryType,
+    MutationType,
+    gql,
+    make_executable_schema,
+)
+from ariadne.asgi import GraphQL
+
+from redis import Redis
+
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+
+from gql import Client, gql as gql_client
+from gql.transport.aiohttp import AIOHTTPTransport
+
 
 # Load configuration from config.ini
 config = configparser.ConfigParser()
-config.read('/app/config.ini')
+config.read("/app/config.ini")
+
+logger = Logger(__name__)
 
 # Replace hardcoded Redis server and port values with values from config.ini
-redis_client = Redis(host=config.get('REDIS', 'HOST'), port=config.get('REDIS', 'PORT'), db=0)
+redis_client = Redis(
+    host=config.get("REDIS", "HOST"), port=config.get("REDIS", "PORT"), db=0
+)
 
 query = QueryType()
 mutation = MutationType()
 
-type_defs = gql("""
+type_defs = gql(
+    """
     type InventoryItem {
         id: ID!
         stockLevel: Int!
@@ -46,9 +68,8 @@ type_defs = gql("""
     type Mutation {
         purchase(id: ID!, quantity: Int!): PurchaseResult!
     }
-""")
-
-
+"""
+)
 
 
 @query.field("vendor")
@@ -57,13 +78,15 @@ def resolve_vendor(*_):
     for key in redis_client.keys():
         item_data = redis_client.hgetall(key)
         if item_data:
-            inventory.append({
-                "id": key.decode('utf-8'),
-                "stockLevel": int(item_data['stockLevel'.encode()]),
-                "price": float(item_data['price'.encode()])
-            })
+            inventory.append(
+                {
+                    "id": item_data["id".encode()].decode(),
+                    "stockLevel": int(item_data["stockLevel".encode()]),
+                    "price": float(item_data["price".encode()]),
+                }
+            )
         else:
-            print(f"Invalid data for key: {key}")
+            logger.error(f"Invalid data for key: {key}")
 
     vendor = {
         "title": "Meaty Pythons",
@@ -81,34 +104,77 @@ def resolve_item(*_, id):
     if item_data:
         return {
             "id": id,
-            "stockLevel": int(item_data['stockLevel'.encode()]),
-            "price": float(item_data['price'.encode()])
+            "stockLevel": int(item_data["stockLevel".encode()]),
+            "price": float(item_data["price".encode()]),
         }
     else:
         return None
+
 
 @mutation.field("purchase")
 def resolve_purchase(*_, id, quantity):
     item_data = redis_client.hgetall(id)
     if item_data:
-        if int(item_data['stockLevel'.encode()]) < quantity:
+        if int(item_data["stockLevel".encode()]) < quantity:
             return "INSUFFICIENT_STOCK"
         else:
-            item_data['stockLevel'.encode()] = str(int(item_data['stockLevel'.encode()]) - quantity).encode()
+            item_data["stockLevel".encode()] = str(
+                int(item_data["stockLevel".encode()]) - quantity
+            ).encode()
             redis_client.hmset(id, item_data)
             return "SUCCESS"
     else:
         return "ITEM_NOT_FOUND"
 
 
+def register_self(
+    broker_url: str, vendor_id: str, url: str, title: str, description: str, icon: str
+):
+    logger.info(f"Connecting to broker at: {broker_url}")
+    print(f"Connecting to broker at: {broker_url}")
+    transport = AIOHTTPTransport(url=broker_url)
+    client = Client(transport=transport, fetch_schema_from_transport=True)
 
-# 
+    query = gql_client(
+        """
+        mutation Mutation(
+            $vendorId: ID!
+            $url: String!
+            $title: String!
+            $description: String!
+            $icon: String!
+            ) {
+                registerVendor(
+                    vendorId: $vendorId
+                    url: $url
+                    title: $title
+                    description: $description
+                    icon: $icon
+                )
+        }
+    """
+    )
+
+    result = client.execute(
+        query,
+        variable_values={
+            "vendorId": vendor_id,
+            "url": url,
+            "title": title,
+            "description": description,
+            "icon": icon,
+        },
+    )
+
+    logger.info(f"Connection to broker: {'SUCCESSFUL' if result else 'FAILED'}!")
+    print(f"Connection to broker: {'SUCCESSFUL' if result else 'FAILED'}!")
+
+
+#
 schema = make_executable_schema(type_defs, query, mutation)
 
 # Instantiate FastAPI with custom middleware for CORS handling
-app = FastAPI(middleware=[
-    Middleware(CORSMiddleware, allow_origins=['*'])
-])
+app = FastAPI(middleware=[Middleware(CORSMiddleware, allow_origins=["*"])])
 
 # Mount the GraphQL app at /query
 app.add_route("/", GraphQL(schema, debug=True))
@@ -118,4 +184,17 @@ app.mount("/static", StaticFiles(directory="/app/static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn
+
+    logger.info("Registering self with broker")
+    broker_url = os.environ.get("BROKER_URL")
+
+    register_self(
+        broker_url,
+        "meaty-pythons",
+        "http://meaty-pythons:8082/",
+        "Meaty Pythons",
+        "We sell the best limbless reptilian meat in town!",
+        "http://meaty-pythons:8082/static/python.png",
+    )
+    logger.info("Starting GraphQL server")
     uvicorn.run(app, host="0.0.0.0", port=8082)

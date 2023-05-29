@@ -32,11 +32,9 @@ const app = express();
 
 const httpServer = http.createServer(app);
 
-const resolvers = { Query, Mutation };
-
 const server = new ApolloServer<Context>({
   typeDefs: [Product, Vendor, QueryType, MutationType],
-  resolvers,
+  resolvers: { Query, Mutation },
   plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
 });
 
@@ -54,4 +52,5 @@ app.use(
 await new Promise<void>((resolve) =>
   httpServer.listen({ port: 4000 }, resolve)
 );
+
 console.log(`🚀 Server ready at http://localhost:4000/`);
