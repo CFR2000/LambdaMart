@@ -1,6 +1,70 @@
-version: '3.8'
+version: "3.8"
 
 services:
+  #== Broker ==#
+  broker-db:
+    build: ./ts-broker/db
+    volumes:
+      - ./ts-broker/db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=broker
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 5s # TODO: reduce this when we aren't testing
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  mongo-seed:
+    image: mongo:5.0.3
+    volumes:
+      - ./ts-broker/db/data.json:/data.json:ro
+    command:
+      [
+        "mongoimport",
+        "--host",
+        "broker-db",
+        "-u",
+        "${MONGO_ROOT_USER}",
+        "-p",
+        "${MONGO_ROOT_PASSWORD}",
+        "--authenticationDatabase",
+        "admin",
+        "--db",
+        "broker",
+        "--collection",
+        "Product",
+        "--type",
+        "json",
+        "--file",
+        "/data.json",
+        "--jsonArray",
+        "--upsertFields",
+        "classId",
+      ]
+    depends_on:
+      - broker-db
+    networks:
+      - backend
+
+  broker:
+    build: ./ts-broker/service
+    ports:
+      - "8079:4000"
+    depends_on:
+      - broker-db
+    environment:
+      MONGO_USERNAME: brokerUser
+      MONGO_PASSWORD: brokerPassword
+    networks:
+      - backend
+
+  #== Veggie Gophers ==#
   veggie-gophers-db:
     build: ./veggie-gophers/db
     environment:
@@ -14,10 +78,12 @@ services:
     ports:
       - 5432:5432
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U veggiegophers" ]
+      test: ["CMD-SHELL", "pg_isready -U veggiegophers"]
       interval: 30s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   veggie-gophers:
     build: ./veggie-gophers/.
@@ -28,7 +94,12 @@ services:
     depends_on:
       veggie-gophers-db:
         condition: service_healthy
+      broker:
+        condition: service_healthy
+    networks:
+      - backend
 
+  #== Meaty Pythons ==#
   meaty-pythons-db:
     build:
       context: ./meaty_pythons/db
@@ -40,10 +111,12 @@ services:
       - ./meaty_pythons/db/items.csv:/items.csv
     command: ["redis-server", "--appendonly", "yes"]
     healthcheck:
-      test: [ "CMD-SHELL", "redis-cli ping || exit 1" ]
+      test: ["CMD-SHELL", "redis-cli ping || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 5
+    networks:
+      - backend
 
   meaty-pythons:
     build:
@@ -56,16 +129,19 @@ services:
       - ./meaty_pythons/config.ini:/app/config.ini
     depends_on:
       meaty-pythons-db:
-        condition: service_healthy 
+        condition: service_healthy
+      broker:
+        condition: service_healthy
     environment:
       REDIS_URL: redis://meaty-pythons-db:6379/0
+      BROKER_URL: http://broker:8079/
     ports:
       - 8082:8082
+    networks:
+      - backend
 
-
-
-
-  fruitful-javascripts_db:
+  #== Fruitful Javascripts ==#
+  fruitful-javascripts-db:
     build:
       context: ./fruitful_javascripts/db
       dockerfile: Dockerfile.sqlite
@@ -73,6 +149,8 @@ services:
       - ./fruitful_javascripts/data:/data
     ports:
       - 8083:8083
+    networks:
+      - backend
 
   fruitful-javascripts:
     build:
@@ -83,44 +161,89 @@ services:
     ports:
       - 8084:8084
     depends_on:
-      - fruitful-javascripts_db
+      - fruitful-javascripts-db
+      - broker
+    networks:
+      - backend
 
-  broker-db:
-    build: ./broker/broker-db
-    volumes:
-      - ./broker/broker-db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
-    environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: rootPassword
+  #== Utility ==#
+  mongo-express:
+    image: mongo-express:0.54.0
     ports:
-      - 27017:27017
-    healthcheck:
-      test: [ "CMD", "mongo", "--eval", "db.adminCommand('ping')" ]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-
-  mongo-seed:
-    image: mongo:5.0.3
-    volumes:
-      - ./broker/broker-db/data.json:/data.json:ro
-    command: ["mongoimport", "--host", "broker-db", "-u", "root", "-p", "rootPassword", "--authenticationDatabase", "admin", "--db", "broker", "--collection", "Product", "--type", "json", "--file", "/data.json", "--jsonArray"]
-    depends_on:
-      - broker-db
-
-  broker:
-    build: ./broker
-    ports:
-      - 8081:8081
+      - "8078:8081"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
-      VENDOR_URLS: fruitful-javascripts=http://fruitful-javascripts:8084/query, meaty-pythons=http://meaty-pythons:8082/, veggie-gophers=http://veggie-gophers:8080/query
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ROOT_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ROOT_PASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=broker-db
+      - ME_CONFIG_MONGODB_PORT=27017
     depends_on:
       broker-db:
         condition: service_healthy
-      veggie-gophers-db:
-        condition: service_healthy
-      fruitful-javascripts_db:
-        condition: service_started
-      meaty-pythons-db:
-        condition: service_started
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+  # broker-db:
+  #   build: ./broker/broker-db
+  #   volumes:
+  #     - ./broker/broker-db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+  #   environment:
+  #     MONGO_INITDB_ROOT_USERNAME: root
+  #     MONGO_INITDB_ROOT_PASSWORD: rootPassword
+  #   ports:
+  #     - 27017:27017
+  #   healthcheck:
+  #     test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+  #     interval: 30s
+  #     timeout: 5s
+  #     retries: 5
+
+  # mongo-seed:
+  #   image: mongo:5.0.3
+  #   volumes:
+  #     - ./broker/broker-db/data.json:/data.json:ro
+  #   command:
+  #     [
+  #       "mongoimport",
+  #       "--host",
+  #       "broker-db",
+  #       "-u",
+  #       "root",
+  #       "-p",
+  #       "rootPassword",
+  #       "--authenticationDatabase",
+  #       "admin",
+  #       "--db",
+  #       "broker",
+  #       "--collection",
+  #       "Product",
+  #       "--type",
+  #       "json",
+  #       "--file",
+  #       "/data.json",
+  #       "--jsonArray",
+  #       "--upsertFields",
+  #       "classId",
+  #     ]
+  #   depends_on:
+  #     - broker-db
+
+  # broker:
+  #   build: ./broker
+  #   ports:
+  #     - 8081:8081
+  #   environment:
+  #     SPRING_DATA_MONGODB_URI: mongodb://brokerUser:brokerPassword@broker-db:27017/broker
+  #     VENDOR_URLS: fruitful-javascripts=http://fruitful-javascripts:8084/query, meaty-pythons=http://meaty-pythons:8082/, veggie-gophers=http://veggie-gophers:8080/query
+  #   depends_on:
+  #     broker-db:
+  #       condition: service_healthy
+  #     veggie-gophers-db:
+  #       condition: service_healthy
+  #     fruitful-javascripts-db:
+  #       condition: service_started
+  #     meaty-pythons-db:
+  #       condition: service_started

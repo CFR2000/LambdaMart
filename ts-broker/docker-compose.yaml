@@ -1,0 +1,82 @@
+version: "3.8"
+
+services:
+  broker-db:
+    build: ./db
+    volumes:
+      - ./db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=broker
+    ports:
+      - 27017:27017
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 5s # TODO: reduce this when we aren't testing
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  mongo-seed:
+    image: mongo:5.0.3
+    volumes:
+      - ./db/data.json:/data.json:ro
+    command:
+      [
+        "mongoimport",
+        "--host",
+        "broker-db",
+        "-u",
+        "${MONGO_ROOT_USER}",
+        "-p",
+        "${MONGO_ROOT_PASSWORD}",
+        "--authenticationDatabase",
+        "admin",
+        "--db",
+        "broker",
+        "--collection",
+        "Product",
+        "--type",
+        "json",
+        "--file",
+        "/data.json",
+        "--jsonArray",
+        "--upsertFields",
+        "classId",
+      ]
+    depends_on:
+      - broker-db
+    networks:
+      - backend
+
+  mongo-express:
+    image: mongo-express:0.54.0
+    ports:
+      - "8078:8081"
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=${MONGO_ROOT_USER}
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=${MONGO_ROOT_PASSWORD}
+      - ME_CONFIG_MONGODB_SERVER=broker-db
+      - ME_CONFIG_MONGODB_PORT=27017
+    depends_on:
+      broker-db:
+        condition: service_healthy
+    networks:
+      - backend
+
+  service:
+    build: ./service
+    ports:
+      - "8079:4000"
+    depends_on:
+      - broker-db
+    networks:
+      - backend
+    environment:
+      MONGO_USERNAME: brokerUser
+      MONGO_PASSWORD: brokerPassword
+networks:
+  backend:
+    driver: bridge

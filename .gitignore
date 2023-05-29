@@ -36,3 +36,5 @@ veggie-gophers/db/data/
 GroceryStoreDataset
 *.aof
 *.rdb
+
+node_modules/

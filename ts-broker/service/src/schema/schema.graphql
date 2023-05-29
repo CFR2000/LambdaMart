@@ -1,0 +1,60 @@
+# Represents an item within a vendor's inventory
+type InventoryItem {
+  id: ID!
+  stockLevel: Int!
+  price: Float!
+}
+
+# Represents a vendor that sells products through the broker
+type Vendor {
+  vendorId: ID!
+  title: String!
+  description: String!
+  icon: String!
+  inventory: [InventoryItem!]!
+}
+
+# Represents a product that can be purchased from a vendor
+type Product {
+  className: String! # The unique class name of the product, eg. "Golden-Delicious"
+  classId: ID! # The unique index of the product in the dataset.json file, eg. 0
+  coarseClassName: String # The class name of the product without the variety, eg. "Apple"
+  imagePath: String # The path to the product's image
+  productType: String # The type of product, eg. "Fruit"
+  description: String # A description of the product
+  country: String # The country of origin of the product
+  volume: String # The volume of the product, eg. "1kg"
+  key: String # The fully qualified key of the product, eg. "fruit.apple.golden-delicious"
+}
+
+# Query the broker for information about vendors and products
+type Query {
+  vendors: [Vendor!]!
+  product(classId: ID!): Product
+  products(
+    coarseClassNames: [String!]
+    productTypes: [String!]
+    classIds: [ID!]
+  ): [Product!]!
+  item(vendorId: ID!, itemId: ID!): InventoryItem
+}
+
+# Purchase an item from a vendor
+type Mutation {
+  purchase(vendorId: ID!, itemId: ID!, quantity: Int!): PurchaseResult!
+  # Register a new vendor, returns true if successful
+  registerVendor(
+    vendorId: ID!
+    url: String!
+    title: String!
+    description: String!
+    icon: String!
+  ): Boolean
+}
+
+# Represents the result of a purchase attempt
+enum PurchaseResult {
+  SUCCESS
+  INSUFFICIENT_STOCK
+  ITEM_NOT_FOUND
+}
