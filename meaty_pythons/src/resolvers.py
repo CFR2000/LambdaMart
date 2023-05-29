@@ -1,7 +1,7 @@
 import os
 import json
 import configparser
-from logging import Logger
+import logging
 
 from ariadne import (
     ObjectType,
@@ -29,7 +29,7 @@ from gql.transport.aiohttp import AIOHTTPTransport
 config = configparser.ConfigParser()
 config.read("/app/config.ini")
 
-logger = Logger(__name__)
+logger = logging.getLogger(__name__)
 
 # Replace hardcoded Redis server and port values with values from config.ini
 redis_client = Redis(
@@ -78,13 +78,7 @@ def resolve_vendor(*_):
     for key in redis_client.keys():
         item_data = redis_client.hgetall(key)
         if item_data:
-            inventory.append(
-                {
-                    "id": item_data["id".encode()].decode(),
-                    "stockLevel": int(item_data["stockLevel".encode()]),
-                    "price": float(item_data["price".encode()]),
-                }
-            )
+            inventory.append({k.decode(): v.decode() for k, v in item_data.items()})
         else:
             logger.error(f"Invalid data for key: {key}")
 
@@ -102,25 +96,23 @@ def resolve_vendor(*_):
 def resolve_item(*_, id):
     item_data = redis_client.hgetall(id)
     if item_data:
-        return {
-            "id": id,
-            "stockLevel": int(item_data["stockLevel".encode()]),
-            "price": float(item_data["price".encode()]),
-        }
+        item_data = {k.decode(): v.decode() for k, v in item_data.items()}
+        item_data["stockLevel"] = int(item_data["stockLevel"])
+        item_data["price"] = float(item_data["price"])
+        return item_data
     else:
-        return None
+        raise Exception(f"Item not found: {id}")
 
 
 @mutation.field("purchase")
 def resolve_purchase(*_, id, quantity):
     item_data = redis_client.hgetall(id)
     if item_data:
-        if int(item_data["stockLevel".encode()]) < quantity:
+        item_data = {k.decode(): v.decode() for k, v in item_data.items()}
+        if int(item_data["stockLevel"]) < quantity:
             return "INSUFFICIENT_STOCK"
         else:
-            item_data["stockLevel".encode()] = str(
-                int(item_data["stockLevel".encode()]) - quantity
-            ).encode()
+            item_data["stockLevel"] = int(item_data["stockLevel"]) - quantity
             redis_client.hmset(id, item_data)
             return "SUCCESS"
     else:
@@ -136,23 +128,23 @@ def register_self(
     client = Client(transport=transport, fetch_schema_from_transport=True)
 
     query = gql_client(
+        """#graphql
+            mutation Mutation(
+                $vendorId: ID!
+                $url: String!
+                $title: String!
+                $description: String!
+                $icon: String!
+                ) {
+                    registerVendor(
+                        vendorId: $vendorId
+                        url: $url
+                        title: $title
+                        description: $description
+                        icon: $icon
+                    )
+            }
         """
-        mutation Mutation(
-            $vendorId: ID!
-            $url: String!
-            $title: String!
-            $description: String!
-            $icon: String!
-            ) {
-                registerVendor(
-                    vendorId: $vendorId
-                    url: $url
-                    title: $title
-                    description: $description
-                    icon: $icon
-                )
-        }
-    """
     )
 
     result = client.execute(
