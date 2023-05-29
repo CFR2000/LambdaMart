@@ -1,15 +1,16 @@
 import request, { gql } from "graphql-request";
 
-import type {
+import {
   MutationPurchaseArgs,
   MutationRegisterVendorArgs,
+  PurchaseResult,
 } from "../types/generated_types";
 import { Context } from "../types/types";
 import { getItem } from "./utils.js";
 
 const purchaseMutation = gql`
   mutation Purchase($itemId: ID!, $quantity: Int!) {
-    purchase(itemId: $itemId, quantity: $quantity)
+    purchase(id: $itemId, quantity: $quantity)
   }
 `;
 
@@ -39,7 +40,18 @@ async function purchase(_, args: MutationPurchaseArgs, { db }: Context) {
     return "INSUFFICIENT_STOCK";
   }
 
-  return await request(vendor.url, purchaseMutation, { id: itemId, quantity });
+  const result = await request<{ purchase: PurchaseResult }>(
+    vendor.url,
+    purchaseMutation,
+    {
+      itemId,
+      quantity: quantity * 1,
+    }
+  );
+
+  console.log(`Purchase result: ${result}`);
+
+  return result.purchase;
 }
 
 /**
