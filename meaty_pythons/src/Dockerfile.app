@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy the project files into the container
 COPY . /app/
 
-RUN apt-get update && apt-get install -y redis-tools
+RUN apt-get update && apt-get install -y redis-tools netcat
 
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
