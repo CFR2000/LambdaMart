@@ -7,7 +7,6 @@ import {
   DrawerOverlay,
   DrawerContent,
   DrawerBody,
-  DrawerFooter,
   Button,
   DrawerCloseButton,
   DrawerHeader,

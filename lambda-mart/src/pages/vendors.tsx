@@ -15,3 +15,10 @@ const Vendors = () => {
 };
 
 export default Vendors;
+
+// export const query = graphql`
+//   query VendorsPageQuery {
+//     broker {
+//       vendors {
+
+//     }

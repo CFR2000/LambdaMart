@@ -1,3 +1,11 @@
+"""`template` - Create a new vendor template
+Usage: main.py
+
+Options:
+    -h --help       Show this screen.
+"""
+from docopt import docopt
+
 import os
 import shutil
 import re

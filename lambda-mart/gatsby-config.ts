@@ -29,10 +29,13 @@ const config: GatsbyConfig = {
     "gatsby-transformer-json",
     fileSystem("images", "./src/images/", "images"),
     fileSystem("pages", "./src/pages/", "pages"),
+    plugin("gatsby-plugin-apollo", {
+      uri: process.env.GATSBY_BROKER_URL || new Error("No Broker URL"),
+    }),
     plugin("gatsby-source-graphql", {
       typeName: "Broker",
       fieldName: "broker",
-      url: process.env.BROKER_URL || "http://localhost:4000",
+      url: process.env.GATSBY_BROKER_URL || new Error("No Broker URL"),
     }),
     plugin("@chakra-ui/gatsby-plugin", {
       /**

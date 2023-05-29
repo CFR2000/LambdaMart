@@ -169,6 +169,19 @@ services:
     networks:
       - backend
 
+  #== Website ==#
+  website:
+    image: gatsby-docker
+    build: ./lambda-mart
+    ports:
+      - 8000:80
+    depends_on:
+      - broker
+    environment:
+      GATSBY_BROKER_URL: http://broker:4000
+    networks:
+      - backend
+
   #== Utility ==#
   mongo-express:
     image: mongo-express:0.54.0

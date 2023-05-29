@@ -1,5 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import React from "react";
+import React, { useEffect } from "react";
 import { DataTable } from "../../table/DataTable";
 import {
   Box,
@@ -12,12 +12,18 @@ import {
   Link as ChakraLink,
   Text,
   Avatar,
+  useToast,
+  NumberInputProps,
+  ButtonProps,
+  AvatarProps,
+  Stack,
+  Flex,
 } from "@chakra-ui/react";
 import { Link, PageProps, graphql, useStaticQuery } from "gatsby";
 import { getTime } from "../../../utils/time";
 
 export type VendorTableType = {
-  Vendor: string;
+  Vendor: Queries.Broker_Vendor;
   Stock?: string;
   TimeToDeliver?: Date;
   Price?: number;
@@ -39,15 +45,23 @@ const moneyFormatter = new Intl.NumberFormat("en-IE", {
   currency: "EUR",
 });
 
-const VendorLink = ({ vendor }: { vendor: string }) => (
-  <ChakraLink as={Link} to="" whiteSpace="nowrap">
-    {vendor}
-  </ChakraLink>
+const VendorLink = ({
+  vendor,
+  icon,
+}: {
+  vendor: Queries.Broker_Vendor;
+  icon: string;
+}) => (
+  <Flex m={0} p={0} height="100%" alignItems="center" gap={3}>
+    <Avatar size={"sm"} src={icon} name={vendor.title} />
+    <ChakraLink as={Link} to="" whiteSpace="nowrap">
+      <Text mt={0}>{vendor.title}</Text>
+    </ChakraLink>
+  </Flex>
 );
 
-// TODO: Add on click stuff to actually hook it into some logic
-const QuantitySelector = () => (
-  <NumberInput size="xs" maxW={16} defaultValue={1} min={1}>
+const QuantitySelector = ({ value, onChange }: NumberInputProps) => (
+  <NumberInput size="xs" maxW={16} value={value} onChange={onChange} min={1}>
     <NumberInputField />
     <NumberInputStepper>
       <NumberIncrementStepper />
@@ -56,87 +70,94 @@ const QuantitySelector = () => (
   </NumberInput>
 );
 
-const AddToCartButton = () => (
-  <Button size="xs" variant="ghost">
-    Add to cart
+const AddToCartButton = ({ onClick }: ButtonProps) => (
+  <Button size="xs" variant="ghost" onClick={onClick}>
+    Buy now
   </Button>
 );
 
-const columns = [
-  columnHelper.accessor("Vendor", {
-    cell: (info) => <VendorLink key={info.cell.id} vendor={info.getValue()} />,
-    header: "Vendor",
-  }),
-  columnHelper.accessor("Stock", {
-    cell: (info) => info.getValue(),
-    header: "Stock",
-  }),
-  columnHelper.accessor("TimeToDeliver", {
-    cell: (info) => getTime(info.getValue() || new Date()),
-    header: "Delivery time",
-  }),
-  columnHelper.accessor("Price", {
-    cell: (info) => moneyFormatter.format(info.getValue() || 0),
-    header: "Price (per unit)",
-    meta: {
-      isNumeric: true,
-    },
-  }),
-  columnHelper.display({
-    id: "quantity",
-    header: "Quantity",
-    cell: (info) => <QuantitySelector key={info.cell.id} />,
-    meta: {
-      isDisplay: true,
-    },
-  }),
-  columnHelper.display({
-    id: "add-to-cart",
-    header: "Add to cart",
-    cell: (info) => <AddToCartButton key={info.cell.id} />,
-    meta: {
-      isDisplay: true,
-      isNumeric: true,
-    },
-  }),
-];
-
-const Vendor = ({ icon, vendorName }) => (
-  <Text size="md" placeContent={"center"}>
-    <Avatar size="sm" src={icon} name={vendorName} mr={2} />
-    {vendorName}
-  </Text>
-);
-
-const VendorList: React.FC<{ stockLevels: Queries.Broker_InventoryItem[] }> = ({
-  stockLevels,
-}) => {
+const VendorList: React.FC<{
+  itemId: string;
+  stockLevels: Queries.Broker_InventoryItem[];
+  quantity: number;
+  setQuantity: (_, qty: number) => void;
+  purchaseItem: (vendor: any) => (e: any) => Promise<void>;
+}> = ({ itemId, stockLevels, quantity, setQuantity, purchaseItem }) => {
   const data = useStaticQuery<Queries.VendorsQuery>(graphql`
     query Vendors {
       broker {
         vendors {
           icon
           title
+          url
           vendorId
         }
       }
     }
   `);
 
-  const idToVendor = new Map<string, Queries.Broker_Vendor>(
+  const idToVendor = new Map(
     data.broker.vendors.map((vendor) => [vendor.vendorId, vendor])
   );
 
-  const tableData = stockLevels.map((stockLevel) => {
-    const vendor = idToVendor.get(stockLevel.vendorId);
-    console.log(vendor);
-    return {
-      Vendor: (
-        <Vendor
-          icon={vendor.icon.replace(vendor?.vendorId, "localhost")}
-          vendorName={vendor.title}
+  const columns = [
+    columnHelper.accessor("Vendor", {
+      cell: (info) => {
+        const vendor = info.getValue() as unknown as Queries.Broker_Vendor;
+        const icon = vendor.icon.replace(vendor?.vendorId, "localhost");
+        return <VendorLink key={info.cell.id} vendor={vendor} icon={icon} />;
+      },
+      header: "Vendor",
+    }),
+    columnHelper.accessor("Stock", {
+      cell: (info) => info.getValue(),
+      header: "Stock",
+    }),
+    columnHelper.accessor("TimeToDeliver", {
+      cell: (info) => getTime(info.getValue() || new Date()),
+      header: "Delivery time",
+    }),
+    columnHelper.accessor("Price", {
+      cell: (info) => moneyFormatter.format(info.getValue() || 0),
+      header: "Price (per unit)",
+      meta: {
+        isNumeric: true,
+      },
+    }),
+    columnHelper.display({
+      id: "quantity",
+      header: "Quantity",
+      cell: (info) => (
+        <QuantitySelector
+          value={quantity}
+          onChange={setQuantity}
+          key={info.cell.id}
         />
       ),
+      meta: {
+        isDisplay: true,
+      },
+    }),
+    columnHelper.accessor("Vendor", {
+      id: "add-to-cart",
+      header: "Add to cart",
+      cell: (info) => (
+        <AddToCartButton
+          onClick={purchaseItem(info.getValue())}
+          key={info.cell.id}
+        />
+      ),
+      meta: {
+        isDisplay: true,
+        isNumeric: true,
+      },
+    }),
+  ];
+
+  const tableData = stockLevels.map((stockLevel) => {
+    const vendor = idToVendor.get(stockLevel.vendorId);
+    return {
+      Vendor: vendor,
       Stock: stockLevel.stockLevel,
       TimeToDeliver: new Date(Date.now() + units.day * 7 * Math.random()),
       Price: stockLevel.price,
