@@ -57,7 +57,7 @@ const GridList = ({
           <chakra.h2 fontSize="3xl" fontWeight="700">
             {title}
           </chakra.h2>
-          <Button colorScheme="green" size="md" onClick={onClickCTA}>
+          <Button colorScheme="primary" size="md" onClick={onClickCTA}>
             {cta}
           </Button>
         </VStack>

@@ -40,3 +40,4 @@ GroceryStoreDataset
 node_modules/
 *.rdb
 *.aof
+ts-broker/service/src/types/generated_types.d.ts

@@ -4,16 +4,25 @@ import VendorList from "../components/product/vendors/VendorList";
 import ProductBreadcrumbs from "../components/product/details/ProductBreadcrumbs";
 import Hero from "../components/product/details/Hero";
 import Layout from "../layouts/page-layout";
-import { PageProps } from "gatsby";
+import { PageProps, graphql } from "gatsby";
+import { getImage } from "gatsby-plugin-image";
 
-const ProductTemplatePage: React.FC<PageProps<Queries.Broker_Product>> = (
-  data
-) => {
+const ProductTemplatePage: React.FC<PageProps<Queries.ProductPageQuery>> = ({
+  data,
+}) => {
   const toast = useToast();
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.300");
-  const { key, id } = data.pageContext;
+  const img = getImage(data.imageSharp!.gatsbyImageData);
 
-  console.log(data);
+  const {
+    className,
+    coarseClassName,
+    country,
+    key,
+    description,
+    productType,
+    volume,
+  } = data.broker.product!;
 
   return (
     <Layout>
@@ -25,20 +34,20 @@ const ProductTemplatePage: React.FC<PageProps<Queries.Broker_Product>> = (
       >
         <Box pb="16">
           <ProductBreadcrumbs
-            product={"temp"}
-            category={"temp"}
-            title={"temp"}
+            product={productType!}
+            category={coarseClassName!}
+            title={className}
           />
         </Box>
         <Box>
           <Hero
-            title={"temp"}
-            description={"temp"}
-            image={null}
+            title={className}
+            description={description!}
+            image={img!}
             onBuyNowClick={() =>
               toast({
                 title: "Click!",
-                description: `You bought some ${key}`,
+                description: `You bought some ${className}`,
               })
             }
           />
@@ -49,7 +58,7 @@ const ProductTemplatePage: React.FC<PageProps<Queries.Broker_Product>> = (
           borderColor={borderColor}
           borderRadius="sm"
         >
-          <VendorList data={[]} />
+          <VendorList stockLevels={[...data.broker.item!]} />
         </Box>
       </Box>
     </Layout>
@@ -57,3 +66,28 @@ const ProductTemplatePage: React.FC<PageProps<Queries.Broker_Product>> = (
 };
 
 export default ProductTemplatePage;
+
+export const query = graphql`
+  query ProductPage($classId: ID!, $originalName: String!) {
+    imageSharp(fixed: { originalName: { eq: $originalName } }) {
+      gatsbyImageData(width: 400)
+    }
+    broker {
+      product(classId: $classId) {
+        className
+        coarseClassName
+        country
+        key
+        description
+        productType
+        volume
+      }
+      item(itemId: $classId) {
+        id
+        vendorId
+        price
+        stockLevel
+      }
+    }
+  }
+`;

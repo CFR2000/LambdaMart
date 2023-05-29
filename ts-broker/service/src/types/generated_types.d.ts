@@ -21,6 +21,7 @@ export type InventoryItem = {
   id: Scalars['ID']['output'];
   price: Scalars['Float']['output'];
   stockLevel: Scalars['Int']['output'];
+  vendorId: Scalars['ID']['output'];
 };
 
 export type Mutation = {
@@ -61,12 +62,13 @@ export type Product = {
 export enum PurchaseResult {
   InsufficientStock = 'INSUFFICIENT_STOCK',
   ItemNotFound = 'ITEM_NOT_FOUND',
-  Success = 'SUCCESS'
+  Success = 'SUCCESS',
+  VendorNotFound = 'VENDOR_NOT_FOUND'
 }
 
 export type Query = {
   __typename?: 'Query';
-  item?: Maybe<InventoryItem>;
+  item?: Maybe<Array<InventoryItem>>;
   product?: Maybe<Product>;
   products: Array<Product>;
   vendors: Array<Vendor>;
@@ -75,7 +77,7 @@ export type Query = {
 
 export type QueryItemArgs = {
   itemId: Scalars['ID']['input'];
-  vendorId: Scalars['ID']['input'];
+  vendorIds?: InputMaybe<Array<Scalars['ID']['input']>>;
 };
 
 
@@ -202,6 +204,7 @@ export type InventoryItemResolvers<ContextType = any, ParentType extends Resolve
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   price?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   stockLevel?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  vendorId?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -224,7 +227,7 @@ export type ProductResolvers<ContextType = any, ParentType extends ResolversPare
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
-  item?: Resolver<Maybe<ResolversTypes['InventoryItem']>, ParentType, ContextType, RequireFields<QueryItemArgs, 'itemId' | 'vendorId'>>;
+  item?: Resolver<Maybe<Array<ResolversTypes['InventoryItem']>>, ParentType, ContextType, RequireFields<QueryItemArgs, 'itemId'>>;
   product?: Resolver<Maybe<ResolversTypes['Product']>, ParentType, ContextType, RequireFields<QueryProductArgs, 'classId'>>;
   products?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType, Partial<QueryProductsArgs>>;
   vendors?: Resolver<Array<ResolversTypes['Vendor']>, ParentType, ContextType>;

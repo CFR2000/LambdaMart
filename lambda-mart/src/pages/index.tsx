@@ -4,13 +4,22 @@ import { HeadFC, Link, PageProps, graphql } from "gatsby";
 import { Button, Box, useToast } from "@chakra-ui/react";
 import GridList from "../components/presentation/GridList";
 import Layout from "../layouts/page-layout";
+import { StaticImage } from "gatsby-plugin-image";
 
 const IndexPage: React.FC<PageProps> = (props) => {
   // const [product, setProduct] = useQueryParam("product", StringParam);
   const toast = useToast();
   return (
     <Layout>
-      <Box maxW="4xl" marginInline="auto">
+      <Box mt={6} maxW="4xl" marginInline="auto">
+        <Box mx={{ base: 2, md: 8 }} borderRadius={"sm"} overflow="hidden">
+          <StaticImage
+            transformOptions={{ cropFocus: "attention" }}
+            src="../images/promo-shot.jpeg"
+            alt="Promo shot"
+            aspectRatio={5 / 3}
+          />
+        </Box>
         <GridList
           title="Get products"
           cta="Click this button!"

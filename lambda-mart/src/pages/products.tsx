@@ -1,7 +1,7 @@
 import React, { ChangeEvent } from "react";
 import { useQueryParamString } from "react-use-query-param-string";
 
-import { PageProps, graphql } from "gatsby";
+import { PageProps, graphql, useStaticQuery } from "gatsby";
 import Layout from "../layouts/page-layout";
 import ProductGrid from "../components/products/ProductGrid";
 import Pagination from "@choc-ui/paginator";
@@ -27,34 +27,16 @@ export const query = graphql`
         productType
       }
     }
+    allImageSharp {
+      nodes {
+        fixed {
+          originalName
+        }
+        gatsbyImageData(width: 150)
+      }
+    }
   }
 `;
-// export const query = graphql`
-//     query ProductQuery {
-//         allDatasetJson {
-//             unique_coarseClassName: distinct(field: { coarseClassName: SELECT })
-//             unique_productType: distinct(field: { productType: SELECT })
-//             nodes {
-//                 className
-//                 coarseClassName
-//                 description
-//                 country
-//                 id
-//                 image: imagePath {
-//                     childImageSharp {
-//                         gatsbyImageData(
-//                             width: 200
-//                             placeholder: BLURRED
-//                             formats: [PNG, WEBP, AUTO]
-//                         )
-//                     }
-//                 }
-//                 classId
-//                 productType
-//             }
-//         }
-//     }
-// `;
 
 const filterProducts = (
   products: any[],
@@ -82,18 +64,20 @@ const toOption: (x: string) => OptionType = (x) => ({
 const ProductPage: React.FC<PageProps<Queries.ProductsPageQuery>> = ({
   data,
 }: any) => {
+  const pageSize = useBreakpointValue({ base: 10, lg: 12, "2xl": 16 });
+
+  const [page, setPage] = React.useState<number>(1);
   const [coarseFilter, setCoarseFilter] = useQueryParamString("variety", "");
   const [typeFilter, setTypeFilter] = useQueryParamString("category", "");
 
-  const [page, setPage] = React.useState<number>(1);
-  const pageSize = useBreakpointValue({ base: 10, lg: 12, "2xl": 16 });
-  console.log(data);
-
-  const products = filterProducts(
-    data.broker.products,
-    typeFilter,
-    coarseFilter
+  const imageMap = new Map<string, IGatsbyImageData>(
+    data.allImageSharp.nodes.map((n) => [
+      n.fixed.originalName.toLocaleLowerCase(),
+      n.gatsbyImageData,
+    ])
   );
+  console.log(typeFilter, coarseFilter);
+  const products = data.broker.products;
 
   const productTypes = [
     ...new Set(data.broker.products.map((p) => p.productType)),
@@ -168,38 +152,41 @@ const ProductPage: React.FC<PageProps<Queries.ProductsPageQuery>> = ({
           <FilterGroup filters={filters} />
           <Text>There are {products.length} item(s)</Text>
         </Stack>
-        {/* <ProductGrid>
-                    {products
-                        .slice(from, to)
-                        .map(
-                            (
-                                {
-                                    id,
-                                    image,
-                                    description,
-                                    className,
-                                    coarseClassName,
-                                    productType,
-                                }: ProductItem,
-                                i: number
-                            ) => (
-                                <ProductGridItem
-                                    key={id}
-                                    image={image}
-                                    price="€420.69"
-                                    rating={(i * i) % 6}
-                                    description={
-                                        description
-                                            ? description.split(".")[0]
-                                            : ""
-                                    }
-                                    title={className}
-                                    productType={productType}
-                                    coarseClassName={coarseClassName}
-                                />
-                            )
-                        )}
-                </ProductGrid> */}
+        <ProductGrid>
+          {products
+            .slice(from, to)
+            .map(
+              (
+                {
+                  key,
+                  imagePath,
+                  description,
+                  className,
+                  coarseClassName,
+                  productType,
+                }: Queries.Broker_Product,
+                i: number
+              ) => (
+                <ProductGridItem
+                  key={key}
+                  path={key}
+                  image={
+                    imagePath
+                      ? imageMap.get(
+                          imagePath.split("/").at(-1).toLocaleLowerCase()
+                        )
+                      : null
+                  }
+                  price="€420.69"
+                  rating={(i * i) % 6}
+                  description={description ? description.split(".")[0] : ""}
+                  title={className}
+                  productType={productType!}
+                  coarseClassName={coarseClassName!}
+                />
+              )
+            )}
+        </ProductGrid>
         <HStack justifyContent={"center"} my="8">
           <Pagination
             key={pageSize}

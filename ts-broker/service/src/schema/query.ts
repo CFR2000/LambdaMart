@@ -10,6 +10,6 @@ export const typeDef = gql`
       productTypes: [String!]
       classIds: [ID!]
     ): [Product!]!
-    item(vendorId: ID!, itemId: ID!): InventoryItem
+    item(vendorIds: [ID!], itemId: ID!): [InventoryItem!]
   }
 `;

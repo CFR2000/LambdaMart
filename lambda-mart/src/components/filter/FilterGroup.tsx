@@ -62,7 +62,11 @@ const FilterGroup = ({
   return (
     <>
       <ButtonGroup>
-        <Button leftIcon={<BsFilter />} onClick={() => setIsOpen(true)}>
+        <Button
+          isDisabled={true}
+          leftIcon={<BsFilter />}
+          onClick={() => setIsOpen(true)}
+        >
           Filter
         </Button>
         <Button

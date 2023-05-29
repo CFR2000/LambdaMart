@@ -3,6 +3,7 @@ import { gql } from "graphql-request";
 export const typeDef = gql`
   # Represents an item within a vendor's inventory
   type InventoryItem {
+    vendorId: ID!
     id: ID!
     stockLevel: Int!
     price: Float!

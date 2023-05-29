@@ -66,12 +66,21 @@ async function vendors(_, __, { db }: Context) {
  * @returns InventoryItem
  */
 async function item(_, args: QueryItemArgs, { db }: Context) {
-  const { vendorId, itemId } = args;
-  const vendor = await db
+  const vendorId = getFilter("vendorId", asList(args.vendorIds));
+  const vendors = await db
     .collection("Vendor")
-    .findOne({ vendorId: { $eq: vendorId } });
+    .find({ ...vendorId }) // filter by vendorId if provided
+    .toArray();
 
-  return getItem(vendor.url, itemId);
+  const items = await Promise.all(
+    (vendors || []).map(async (vendor) => ({
+      ...(await getItem(vendor.url, args.itemId)),
+      vendorId: vendor.vendorId,
+    }))
+  );
+
+  // filter out `null`s and `undefined`s
+  return items.filter((x) => Boolean(x.id && x.stockLevel && x.price));
 }
 
 export default { product, products, vendors, item };

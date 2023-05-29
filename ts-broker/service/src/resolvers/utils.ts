@@ -29,7 +29,7 @@ export const asList = (arr: any | any[]) =>
     (x) => Boolean(x) && x !== "null" && x !== "undefined"
   );
 
-export const getFilter = (key: keyof Product, values?: (string | number)[]) =>
+export const getFilter = (key: string, values?: (string | number)[]) =>
   values && values.length > 0 ? { [key]: { $in: values } } : {};
 
 export async function getInventory(url: string) {
@@ -39,9 +39,13 @@ export async function getInventory(url: string) {
 }
 
 export async function getItem(url: string, itemId: string | number) {
-  return (
-    await request<{ item: InventoryItem }>(url, getItemQuery, {
+  try {
+    const data = await request<{ item: InventoryItem }>(url, getItemQuery, {
       itemId,
-    })
-  ).item;
+    });
+    return data && data.item ? data.item : null;
+  } catch (e) {
+    console.error(e);
+    return null;
+  }
 }

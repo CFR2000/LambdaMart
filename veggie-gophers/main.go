@@ -129,6 +129,6 @@ func main() {
 
 	log.Printf("Connect to http://localhost:%s/ for GraphQL playground", port)
 	brokerUrl := os.Getenv("BROKER_URL")
-	register(brokerUrl, "veggie-gophers", "http://veggie-gophers:8080/query", "Veggie Gophers", "We sell the best vegetables in town!", "http:/veggie-gophers:8080/static/gophers.png")
+	register(brokerUrl, "veggie-gophers", "http://veggie-gophers:8080/query", "Veggie Gophers", "We sell the best vegetables in town!", "http:/veggie-gophers:8080/static/gopher.png")
 	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

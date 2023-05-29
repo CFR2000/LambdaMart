@@ -1,12 +1,13 @@
 import path from "path";
 import { GatsbyNode } from "gatsby";
 
-const query = `
+const query = `#graphql
     query ProductPages {
         broker {
             products {
                 key
                 classId
+                imagePath
             }
         }
     }
@@ -42,15 +43,16 @@ export const createPages: GatsbyNode["createPages"] = async ({
   const component = path.resolve("./src/templates/ProductTemplatePage.tsx");
 
   // Create blog post pages.
-  result.data.broker.products.forEach(({ key, classId }) => {
+  for (const { key, classId, imagePath } of result.data.broker.products) {
+    const originalName = imagePath?.split("/").at(-1);
     createPage({
       // Path for this page — required
       path: key!,
       component,
       context: {
         classId,
-        key,
+        originalName,
       },
     });
-  });
+  }
 };

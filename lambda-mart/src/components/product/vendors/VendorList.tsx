@@ -10,8 +10,10 @@ import {
   NumberInputField,
   NumberInputStepper,
   Link as ChakraLink,
+  Text,
+  Avatar,
 } from "@chakra-ui/react";
-import { Link } from "gatsby";
+import { Link, PageProps, graphql, useStaticQuery } from "gatsby";
 import { getTime } from "../../../utils/time";
 
 export type VendorTableType = {
@@ -99,10 +101,53 @@ const columns = [
   }),
 ];
 
-const VendorList = ({ data }: { data: VendorTableType[] }) => (
-  <Box overflowX="scroll">
-    <DataTable columns={columns} data={data} />
-  </Box>
+const Vendor = ({ icon, vendorName }) => (
+  <Text size="md" placeContent={"center"}>
+    <Avatar size="sm" src={icon} name={vendorName} mr={2} />
+    {vendorName}
+  </Text>
 );
+
+const VendorList: React.FC<{ stockLevels: Queries.Broker_InventoryItem[] }> = ({
+  stockLevels,
+}) => {
+  const data = useStaticQuery<Queries.VendorsQuery>(graphql`
+    query Vendors {
+      broker {
+        vendors {
+          icon
+          title
+          vendorId
+        }
+      }
+    }
+  `);
+
+  const idToVendor = new Map<string, Queries.Broker_Vendor>(
+    data.broker.vendors.map((vendor) => [vendor.vendorId, vendor])
+  );
+
+  const tableData = stockLevels.map((stockLevel) => {
+    const vendor = idToVendor.get(stockLevel.vendorId);
+    console.log(vendor);
+    return {
+      Vendor: (
+        <Vendor
+          icon={vendor.icon.replace(vendor?.vendorId, "localhost")}
+          vendorName={vendor.title}
+        />
+      ),
+      Stock: stockLevel.stockLevel,
+      TimeToDeliver: new Date(Date.now() + units.day * 7 * Math.random()),
+      Price: stockLevel.price,
+    };
+  });
+
+  return (
+    <Box overflowX="scroll">
+      <DataTable columns={columns} data={tableData} />
+    </Box>
+  );
+};
 
 export default VendorList;
