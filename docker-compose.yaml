@@ -173,6 +173,70 @@ services:
       - backend
     restart: always
 
+  #== Lambda Market ==#
+  lambda-market-db:
+    build: ./lambda-market/db
+    volumes:
+      - ./lambda-market/db/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD}
+      - MONGO_INITDB_DATABASE=lambda-market
+    ports:
+      - 27018:27017
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 5s # TODO: reduce this when we aren't testing
+      timeout: 5s
+      retries: 5
+    networks:
+      - backend
+
+  lambda-market-mongo-seed:
+    image: mongo:5.0.3
+    volumes:
+      - ./lambda-market/db/items.json:/items.json:ro
+    command:
+      [
+        "mongoimport",
+        "--host",
+        "lambda-market-db",
+        "-u",
+        "${MONGO_ROOT_USER}",
+        "-p",
+        "${MONGO_ROOT_PASSWORD}",
+        "--authenticationDatabase",
+        "admin",
+        "--db",
+        "lambda-market",
+        "--collection",
+        "Item",
+        "--type",
+        "json",
+        "--file",
+        "/items.json",
+        "--jsonArray",
+        "--upsertFields",
+        "classId",
+      ]
+    depends_on:
+      - lambda-market-db
+    networks:
+      - backend
+
+  lambda-market:
+    build: ./lambda-market/service
+    ports:
+      - "8085:4000"
+    depends_on:
+      - lambda-market-db
+    networks:
+      - backend
+    environment:
+      HOST_DB_URI: mongodb://lambda-market-db:27017
+      BROKER_URL: http://broker:4000/graphql
+      MONGO_USERNAME: lambdaUser
+      MONGO_PASSWORD: lambdaPassword
   #== Website ==#
   website:
     image: gatsby-docker

@@ -71,7 +71,10 @@ export const asList = (arr: any | any[]) =>
  * @param values The values to filter on, if any
  * @returns An object that can be used as a filter in a MongoDB query
  */
-export const getFilter = (key: string, values?: (string | number)[]) => {
+export const getFilter = (
+  key: string,
+  values?: string | number | (string | number)[]
+) => {
   values = asList(values);
   return values && values.length > 0 ? { [key]: { $in: values } } : {};
 };

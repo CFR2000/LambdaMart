@@ -1004,110 +1004,110 @@
     "className": "Gravity-Defying Shoes",
     "classId": "91",
     "coarseClassName": "Footwear",
-    "productType": "Functional",
+    "productType": "Oddity",
     "description": "Walk on air with these gravity-defying shoes. With their anti-gravitational technology, you'll experience the sensation of floating as you stroll through your everyday adventures.",
     "country": "Cloud Nine",
     "volume": "1 pair",
     "key": "functional/footwear/gravity-defying-shoes",
-    "imagePath": "./images/functional/footwear/gravity-defying-shoes.jpg"
+    "imagePath": "functional/footwear/gravity-defying-shoes.jpg"
   },
   {
     "className": "Talking Plant Pot",
     "classId": "92",
     "coarseClassName": "Home decor",
-    "productType": "Functional",
+    "productType": "Oddity",
     "description": "Bring your plants to life with the talking plant pot. It converses with your plants, providing them with uplifting compliments and motivational speeches, fostering a nurturing environment.",
     "country": "Botanica",
     "volume": "1 unit",
     "key": "functional/home-decor/talking-plant-pot",
-    "imagePath": "./images/functional/home-decor/talking-plant-pot.jpg"
+    "imagePath": "functional/home-decor/talking-plant-pot.jpg"
   },
   {
     "className": "Glow-in-the-Dark Pancakes",
     "classId": "93",
-    "coarseClassName": "Pastries",
-    "productType": "Food",
+    "coarseClassName": "Breakfast",
+    "productType": "Oddity",
     "description": "Start your day with a whimsical twist by indulging in glow-in-the-dark pancakes. These magical delights emit a soft glow, turning your breakfast into an ethereal experience.",
     "country": "Lumos",
     "volume": "3 pancakes",
-    "key": "packages/pastries/glow-in-the-dark-pancakes",
-    "imagePath": "./images/Packages/Pastries/glow-in-the-dark-pancakes.jpg"
+    "key": "food/breakfast/glow-in-the-dark-pancakes",
+    "imagePath": "food/breakfast/glow-in-the-dark-pancakes.jpg"
   },
   {
     "className": "Infinity Mirror Sunglasses",
     "classId": "94",
     "coarseClassName": "Eyewear",
-    "productType": "Functional",
+    "productType": "Oddity",
     "description": "Step into a never-ending world of style with these infinity mirror sunglasses. The reflective surfaces create an infinite tunnel of mesmerizing visuals, making a bold statement wherever you go.",
     "country": "Reflectopia",
     "volume": "1 pair",
     "key": "functional/eyewear/infinity-mirror-sunglasses",
-    "imagePath": "./images/functional/eyewear/infinity-mirror-sunglasses.jpg"
+    "imagePath": "functional/eyewear/infinity-mirror-sunglasses.jpg"
   },
   {
     "className": "Absurdly Flexible Yoga Mat",
     "classId": "95",
     "coarseClassName": "Fitness accessories",
-    "productType": "Functional",
+    "productType": "Oddity",
     "description": "Push the boundaries of flexibility with this absurdly flexible yoga mat. It stretches, twists, and contorts in unimaginable ways, challenging you to explore new realms of body movement.",
     "country": "Flexiverse",
     "volume": "1 unit",
     "key": "functional/fitness-accessories/absurdly-flexible-yoga-mat",
-    "imagePath": "./images/functional/fitness-accessories/absurdly-flexible-yoga-mat.jpg"
+    "imagePath": "functional/fitness-accessories/absurdly-flexible-yoga-mat.jpg"
   },
   {
     "className": "Teleportation Donuts",
     "classId": "96",
     "coarseClassName": "Pastries",
-    "productType": "Packages",
+    "productType": "Oddity",
     "description": "These magical donuts are infused with teleportation properties. Each bite transports you to a random location around the world, creating a truly unique and unexpected culinary experience.",
     "country": "Multiverse",
     "volume": "6 units",
-    "key": "packages/pastries/teleportation-donuts",
-    "imagePath": "./images/Packages/Pastries/teleportation-donuts.jpg"
+    "key": "food/pastries/teleportation-donuts",
+    "imagePath": "food/pastries/teleportation-donuts.jpg"
   },
   {
     "className": "Invisible Umbrella",
     "classId": "97",
     "coarseClassName": "Accessories",
-    "productType": "Functional",
+    "productType": "Oddity",
     "description": "Experience the ultimate surrealist accessory with the Invisible Umbrella. Despite its transparent appearance, this umbrella shields you from rain and sun. It's an extraordinary conversation starter.",
     "country": "Dreamland",
     "volume": "1 unit",
     "key": "functional/accessories/invisible-umbrella",
-    "imagePath": "./images/functional/accessories/invisible-umbrella.jpg"
+    "imagePath": "functional/accessories/invisible-umbrella.jpg"
   },
   {
     "className": "Levitating Teapot",
     "classId": "98",
     "coarseClassName": "Teaware",
-    "productType": "Functional",
+    "productType": "Oddity",
     "description": "Brew your tea in style with this levitating teapot. It defies gravity as it floats mid-air, pouring your favorite tea with a touch of whimsy. A true spectacle for tea lovers.",
     "country": "Wonderland",
     "volume": "500 ml",
     "key": "functional/teaware/levitating-teapot",
-    "imagePath": "./images/functional/teaware/levitating-teapot.jpg"
+    "imagePath": "functional/teaware/levitating-teapot.jpg"
   },
   {
     "className": "Singing Pasta",
     "classId": "99",
     "coarseClassName": "Pasta dishes",
-    "productType": "Vegetable",
+    "productType": "Oddity",
     "description": "Indulge in this zany dish of singing pasta. As the pasta cooks, it emits melodious tunes and harmonious lyrics. A bizarre culinary experience that delights both the ears and taste buds.",
     "country": "Melodia",
     "volume": "2 servings",
     "key": "vegetable/pasta-dishes/singing-pasta",
-    "imagePath": "./images/Vegetables/pasta-dishes/singing-pasta.jpg"
+    "imagePath": "vegetable/pasta-dishes/singing-pasta.jpg"
   },
   {
     "className": "Time-Traveling Alarm Clock",
     "classId": "100",
     "coarseClassName": "Clocks",
-    "productType": "Functional",
+    "productType": "Oddity",
     "description": "Wake up to a surreal morning with this time-traveling alarm clock. It not only wakes you up but also transports you to a random era in history. Start your day with an adventure.",
     "country": "Chronopolis",
     "volume": "1 unit",
     "key": "functional/clocks/time-traveling-alarm-clock",
-    "imagePath": "./images/functional/clocks/time-traveling-alarm-clock.jpg"
+    "imagePath": "functional/clocks/time-traveling-alarm-clock.jpg"
   }
 ]
