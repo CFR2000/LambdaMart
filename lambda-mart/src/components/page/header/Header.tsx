@@ -92,6 +92,8 @@ const Header: React.FC = () => {
         <chakra.header h="100%" w="full">
           <Flex
             w="full"
+            maxW={"7xl"}
+            mx="auto"
             h="full"
             px="6"
             alignItems="center"

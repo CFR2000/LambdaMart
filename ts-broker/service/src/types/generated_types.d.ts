@@ -92,6 +92,11 @@ export type QueryProductsArgs = {
   productTypes?: InputMaybe<Array<Scalars['String']['input']>>;
 };
 
+
+export type QueryVendorsArgs = {
+  vendorIds?: InputMaybe<Array<Scalars['ID']['input']>>;
+};
+
 export type Vendor = {
   __typename?: 'Vendor';
   description: Scalars['String']['output'];
@@ -230,7 +235,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   item?: Resolver<Maybe<Array<ResolversTypes['InventoryItem']>>, ParentType, ContextType, RequireFields<QueryItemArgs, 'itemId'>>;
   product?: Resolver<Maybe<ResolversTypes['Product']>, ParentType, ContextType, RequireFields<QueryProductArgs, 'classId'>>;
   products?: Resolver<Array<ResolversTypes['Product']>, ParentType, ContextType, Partial<QueryProductsArgs>>;
-  vendors?: Resolver<Array<ResolversTypes['Vendor']>, ParentType, ContextType>;
+  vendors?: Resolver<Array<ResolversTypes['Vendor']>, ParentType, ContextType, Partial<QueryVendorsArgs>>;
 };
 
 export type VendorResolvers<ContextType = any, ParentType extends ResolversParentTypes['Vendor'] = ResolversParentTypes['Vendor']> = {

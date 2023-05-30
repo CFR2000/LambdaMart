@@ -1,5 +1,11 @@
 import type { GatsbyConfig } from "gatsby";
 
+import dotenv from "dotenv";
+
+// Load environment variables from .env files,
+// where API keys and passwords are configured.
+dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
+
 const plugin = (resolve: string, options?: any, __key?: string) => ({
   resolve,
   options,
@@ -19,24 +25,17 @@ const config: GatsbyConfig = {
   // Learn more at: https://gatsby.dev/graphql-typegen
   graphqlTypegen: true,
   plugins: [
-    "gatsby-plugin-netlify-cms",
     "gatsby-plugin-emotion",
     "gatsby-plugin-image",
     "gatsby-plugin-mdx",
     "gatsby-plugin-sharp",
+    plugin("gatsby-plugin-apollo", { uri: process.env.GATSBY_BROKER_URL }),
     plugin("gatsby-plugin-manifest", { icon: "src/images/Lambda.png" }),
     "gatsby-transformer-sharp",
     "gatsby-transformer-json",
     fileSystem("images", "./src/images/", "images"),
     fileSystem("pages", "./src/pages/", "pages"),
-    plugin("gatsby-plugin-apollo", {
-      uri: process.env.GATSBY_BROKER_URL || new Error("No Broker URL"),
-    }),
-    plugin("gatsby-source-graphql", {
-      typeName: "Broker",
-      fieldName: "broker",
-      url: process.env.GATSBY_BROKER_URL || new Error("No Broker URL"),
-    }),
+    fileSystem("data", "./src/data/", "data"),
     plugin("@chakra-ui/gatsby-plugin", {
       /**
        * @property {boolean} [resetCSS=true]

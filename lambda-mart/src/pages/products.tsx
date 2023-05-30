@@ -1,136 +1,83 @@
-import React, { ChangeEvent } from "react";
+import React from "react";
 import { useQueryParamString } from "react-use-query-param-string";
 
-import { PageProps, graphql, useStaticQuery } from "gatsby";
+import { PageProps, graphql } from "gatsby";
 import Layout from "../layouts/page-layout";
 import ProductGrid from "../components/products/ProductGrid";
 import Pagination from "@choc-ui/paginator";
 import ProductGridItem from "../components/products/ProductGridItem";
-import { IGatsbyImageData } from "gatsby-plugin-image";
 import FilterGroup, {
   CheckboxType,
   FilterType,
-  OptionType,
 } from "../components/filter/FilterGroup";
+import { coarseClassFilter, productTypeFilter } from "../utils/filters";
 import { Box, HStack, Stack, Text, useBreakpointValue } from "@chakra-ui/react";
 
 export const query = graphql`
   query ProductsPage {
-    broker {
-      products {
-        className
-        classId
-        coarseClassName
-        description
-        imagePath
-        key
-        productType
-      }
-    }
-    allImageSharp {
+    allDataJson {
       nodes {
-        fixed {
-          originalName
+        className
+        coarseClassName
+        productType
+        description
+        key
+        image: imagePath {
+          childImageSharp {
+            gatsbyImageData(
+              width: 125
+              height: 125
+              quality: 100
+              placeholder: BLURRED
+              formats: [PNG, WEBP, AUTO]
+              transformOptions: { cropFocus: ATTENTION }
+            )
+          }
         }
-        gatsbyImageData(width: 150)
       }
     }
   }
 `;
 
-const filterProducts = (
-  products: any[],
-  typeFilter: string[] | string = "",
-  coarseFilter: string[] | string = ""
-) => {
-  if (typeof typeFilter === "string") {
-    typeFilter = typeFilter.split("|");
-  }
-  if (typeof coarseFilter === "string") {
-    coarseFilter = coarseFilter.split("|");
-  }
-  return products.filter(
-    (p) =>
-      (!typeFilter || typeFilter.includes(p.productType)) &&
-      (!coarseFilter || coarseFilter.includes(p.coarseClassName))
-  );
-};
-
-const toOption: (x: string) => OptionType = (x) => ({
-  value: x,
-  label: x,
-});
-
 const ProductPage: React.FC<PageProps<Queries.ProductsPageQuery>> = ({
   data,
-}: any) => {
+}) => {
   const pageSize = useBreakpointValue({ base: 10, lg: 12, "2xl": 16 });
-
   const [page, setPage] = React.useState<number>(1);
   const [coarseFilter, setCoarseFilter] = useQueryParamString("variety", "");
   const [typeFilter, setTypeFilter] = useQueryParamString("category", "");
 
-  const imageMap = new Map<string, IGatsbyImageData>(
-    data.allImageSharp.nodes.map((n) => [
-      n.fixed.originalName.toLocaleLowerCase(),
-      n.gatsbyImageData,
-    ])
-  );
-  console.log(typeFilter, coarseFilter);
-  const products = data.broker.products;
+  const allProducts = data.allDataJson.nodes;
+  const products = allProducts
+    .filter(
+      (v) => typeFilter.length === 0 || typeFilter.includes(v.productType!)
+    )
+    .filter(
+      (v) =>
+        coarseFilter.length === 0 || coarseFilter.includes(v.coarseClassName!)
+    );
 
   const productTypes = [
-    ...new Set(data.broker.products.map((p) => p.productType)),
-  ];
+    ...new Set(allProducts.map((p) => p.productType)),
+  ] as string[];
 
   const coarseClassNames = [
     ...new Set(
-      data.broker.products
+      allProducts
         .filter(
-          (p) => !typeFilter || typeFilter.split("|").includes(p.productType)
+          (p) => typeFilter.length === 0 || typeFilter.includes(p.productType!)
         )
         .map((p) => p.coarseClassName)
     ),
-  ];
+  ] as string[];
 
-  if (coarseFilter && !coarseClassNames.includes(coarseFilter)) {
+  if (coarseFilter && !coarseClassNames.includes(coarseFilter!)) {
     setCoarseFilter("");
   }
 
   const filters: (FilterType | CheckboxType)[] = [
-    {
-      type: "select",
-      id: "variety",
-      options: coarseClassNames.map(toOption),
-      label: "Variety",
-      value: coarseFilter || "",
-      onChange: (event: ChangeEvent<HTMLInputElement>) => {
-        setCoarseFilter(event.target ? event.target.value : "");
-      },
-    },
-    {
-      type: "checkbox",
-      id: "category",
-      label: "Category",
-      value: typeFilter.split("|") || "",
-      options: productTypes.map(toOption),
-      onChange: (event: ChangeEvent<HTMLInputElement>) => {
-        if (!event.target) {
-          setTypeFilter("");
-        } else {
-          const choices = typeFilter.split("|");
-          if (event.target.checked) {
-            choices.push(event.target.value);
-          } else {
-            choices.splice(choices.indexOf(event.target.value), 1);
-          }
-          console.log(choices);
-          setTypeFilter(
-            event.target ? choices.filter((v) => v != "").join("|") : ""
-          );
-        }
-      },
-    },
+    coarseClassFilter(coarseFilter, setCoarseFilter, coarseClassNames),
+    productTypeFilter(typeFilter, setTypeFilter, productTypes),
   ];
 
   const from = pageSize! * (page - 1);
@@ -159,28 +106,22 @@ const ProductPage: React.FC<PageProps<Queries.ProductsPageQuery>> = ({
               (
                 {
                   key,
-                  imagePath,
                   description,
                   className,
+                  image,
                   coarseClassName,
                   productType,
-                }: Queries.Broker_Product,
+                },
                 i: number
               ) => (
                 <ProductGridItem
                   key={key}
-                  path={key}
-                  image={
-                    imagePath
-                      ? imageMap.get(
-                          imagePath.split("/").at(-1).toLocaleLowerCase()
-                        )
-                      : null
-                  }
+                  path={key!}
+                  image={image!}
                   price="€420.69"
                   rating={(i * i) % 6}
                   description={description ? description.split(".")[0] : ""}
-                  title={className}
+                  title={className!}
                   productType={productType!}
                   coarseClassName={coarseClassName!}
                 />

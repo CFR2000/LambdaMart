@@ -1,54 +1,60 @@
 import React, { useEffect } from "react";
 import { Box, Heading, useColorModeValue, useToast } from "@chakra-ui/react";
-import VendorList from "../components/product/vendors/VendorList";
-import ProductBreadcrumbs from "../components/product/details/ProductBreadcrumbs";
-import Hero from "../components/product/details/Hero";
-import Layout from "../layouts/page-layout";
 import { PageProps, graphql } from "gatsby";
 import { getImage } from "gatsby-plugin-image";
 
-import { getItem, purchaseItem } from "../utils/requests";
+import Hero from "../components/product/details/Hero";
+import VendorList from "../components/product/vendors/VendorList";
+import ProductBreadcrumbs from "../components/product/details/ProductBreadcrumbs";
+import Layout from "../layouts/page-layout";
+import { getStock, purchaseItem } from "../utils/requests";
 import { itemRefreshQuery } from "../utils/queries";
-import { useQuery } from "@apollo/client";
+import { gql, useMutation, useQuery } from "@apollo/client";
 
-const ProductTemplatePage: React.FC<PageProps<Queries.ProductPageQuery>> = ({
-  data,
+type StockItem = { id: string | number; stockLevel: number; price: number };
+
+const ProductTemplatePage: React.FC<PageProps<any, Queries.DataJson>> = ({
+  pageContext: {
+    classId,
+    className,
+    imagePath: image,
+    coarseClassName,
+    description,
+    productType,
+  },
 }) => {
-  const [inventory, setInventory] = React.useState<
-    Queries.Broker_InventoryItem[]
-  >([]);
-  const [loading, setLoading] = React.useState<boolean>(true);
   const [quantity, setQuantity] = React.useState<number>(1);
-
   const toast = useToast();
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.300");
-  const img = getImage(data.imageSharp!.gatsbyImageData);
+  const img = getImage(image!.childImageSharp!.gatsbyImageData);
 
-  const { classId, className, coarseClassName, description, productType } =
-    data.broker.product!;
+  const { loading, error, data } = useQuery(itemRefreshQuery, {
+    variables: { itemId: classId },
+    pollInterval: 5000,
+  });
 
-  const updateInventory = () => {
-    setLoading(true);
+  if (error) {
+    toast({
+      title: "Error",
+      description: "Something went wrong.",
+      status: "error",
+    });
+  }
 
-    getItem(classId)
-      .then((result) => {
-        setInventory(result.item);
-      })
-      .catch((error) => {
-        toast({
-          title: "Error",
-          description: `Failed to fetch stock levels for ${className}`,
-          status: "error",
-        });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  const [purchaseItem, { data: m_data, loading: m_loading, error: m_error }] =
+    useMutation(gql`
+      mutation Mutation($vendorId: ID!, $itemId: ID!, $quantity: Int!) {
+        purchase(vendorId: $vendorId, itemId: $itemId, quantity: $quantity)
+      }
+    `);
 
-  useEffect(() => {
-    updateInventory();
-  }, [classId]);
+  if (m_error) {
+    toast({
+      title: "Error",
+      description: `Something went wrong while purchasing (${m_data}).`,
+      status: "error",
+    });
+  }
 
   return (
     <Layout>
@@ -62,18 +68,20 @@ const ProductTemplatePage: React.FC<PageProps<Queries.ProductPageQuery>> = ({
           <ProductBreadcrumbs
             product={productType!}
             category={coarseClassName!}
-            title={className}
+            title={className!}
           />
         </Box>
         <Box>
           <Hero
-            title={className}
+            title={className!}
             description={description!}
             image={img!}
             onBuyNowClick={() =>
               toast({
                 title: "Click!",
                 description: `You bought some ${className}`,
+                isClosable: true,
+                colorScheme: "primary",
               })
             }
           />
@@ -85,34 +93,19 @@ const ProductTemplatePage: React.FC<PageProps<Queries.ProductPageQuery>> = ({
           borderRadius="sm"
         >
           <VendorList
-            itemId={classId}
-            stockLevels={loading || !inventory ? [] : inventory}
+            itemId={classId!}
+            stockLevels={loading || !data || !data.item ? [] : data.item}
             quantity={quantity}
             setQuantity={(_, qty) => setQuantity(qty)}
             purchaseItem={(vendor) => {
-              return async (e) => {
-                e.preventDefault();
-                const result = await purchaseItem(
-                  vendor.vendorId,
-                  classId,
-                  quantity
-                );
-                updateInventory();
-                console.log(result);
-                if (result.purchase === "SUCCESS") {
-                  toast({
-                    title: "Purchased item",
-                    description: "Enjoy!",
-                    status: "success",
-                  });
-                } else {
-                  toast({
-                    title: "Error",
-                    description: "Something went wrong.",
-                    status: "error",
-                  });
-                }
-              };
+              console.log(vendor, classId, quantity);
+              purchaseItem({
+                variables: {
+                  vendorId: vendor.vendorId,
+                  itemId: classId,
+                  quantity: quantity,
+                },
+              });
             }}
           />
         </Box>
@@ -122,29 +115,3 @@ const ProductTemplatePage: React.FC<PageProps<Queries.ProductPageQuery>> = ({
 };
 
 export default ProductTemplatePage;
-
-export const query = graphql`
-  query ProductPage($classId: ID!, $originalName: String!) {
-    imageSharp(fixed: { originalName: { eq: $originalName } }) {
-      gatsbyImageData(width: 400)
-    }
-    broker {
-      product(classId: $classId) {
-        classId
-        className
-        coarseClassName
-        country
-        key
-        description
-        productType
-        volume
-      }
-      item(itemId: $classId) {
-        id
-        vendorId
-        price
-        stockLevel
-      }
-    }
-  }
-`;

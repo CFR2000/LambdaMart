@@ -61,17 +61,18 @@ const FilterGroup = ({
   return (
     <>
       <ButtonGroup>
-        <Button
-          isDisabled={true}
-          leftIcon={<BsFilter />}
-          onClick={() => setIsOpen(true)}
-        >
+        <Button leftIcon={<BsFilter />} onClick={() => setIsOpen(true)}>
           Filter
         </Button>
         <Button
           variant="ghost"
           mr={3}
           colorScheme="primary"
+          isDisabled={filters
+            .flat()
+            .map((f) => f.value)
+            .flat()
+            .every((v) => !v)}
           onClick={() =>
             filters.forEach((f) =>
               f.onChange({} as SyntheticEvent<HTMLInputElement>)
@@ -86,14 +87,15 @@ const FilterGroup = ({
 
         <DrawerContent ref={ref}>
           <DrawerCloseButton onClick={() => setIsOpen(false)} />
-          <DrawerHeader>Create your account</DrawerHeader>
+          <DrawerHeader>Filter products</DrawerHeader>
           <DrawerBody>
             <SimpleGrid
               minChildWidth="200px"
+              justifyContent={"center"}
               spacing="40px"
               maxW="2xl"
-              my="6"
-              mx={{ base: "1", md: "16" }}
+              my="4"
+              mx={{ base: "1", md: "4" }}
             >
               {filters.map(({ id, ...filter }) => {
                 switch (filter.type) {

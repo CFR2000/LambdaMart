@@ -5,12 +5,14 @@ RUN apk --no-cache add --virtual .builds-deps build-base python3
 WORKDIR /app
 COPY . .
 
-RUN npm install --legacy-peer-deps
-RUN npm run build
+RUN npm install
+# RUN npm run build
+RUN npm run start
+# FROM nginx:latest
 
-FROM nginx:1.18-alpine AS deploy
+# COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
 
-WORKDIR /usr/share/nginx/html
-RUN rm -rf ./*
-COPY --from=build /app/public .
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+# WORKDIR /usr/share/nginx/html
+# RUN rm -rf ./*
+# COPY --from=build /app/public .
+# ENTRYPOINT ["nginx", "-g", "daemon off;"]

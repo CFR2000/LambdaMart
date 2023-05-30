@@ -100,8 +100,7 @@ def resolve_item(*_, id):
         item_data["stockLevel"] = int(item_data["stockLevel"])
         item_data["price"] = float(item_data["price"])
         return item_data
-    else:
-        raise Exception(f"Item not found: {id}")
+    return None
 
 
 @mutation.field("purchase")

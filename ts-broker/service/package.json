@@ -7,7 +7,7 @@
   "scripts": {
     "generate": "graphql-codegen --config codegen.ts",
     "compile": "npm run generate && tsc",
-    "start": "npm run compile && node ./dist/index.js"
+    "start": "npm run compile && node ./dist/index.js -H 0.0.0.0"
   },
   "keywords": [],
   "author": "",

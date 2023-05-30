@@ -2,35 +2,37 @@ import path from "path";
 import { GatsbyNode } from "gatsby";
 
 const query = `#graphql
-    query ProductPages {
-        broker {
-            products {
-                key
-                classId
-                imagePath
-            }
+  query ProductPages {
+    allDataJson {
+      nodes {
+        classId
+        key
+        className
+        coarseClassName
+        productType
+        description
+        imagePath {
+          childImageSharp {
+            gatsbyImageData(
+              width: 250
+              height: 250
+              quality: 100
+              placeholder: BLURRED
+              formats: [PNG, WEBP, AUTO]
+              transformOptions: { cropFocus: ATTENTION }
+            )
+          }
         }
+      }
     }
+  }
 `;
-
-type ProductPage = Queries.Broker_Product;
-
-type ProductPagesQuery = {
-  broker: {
-    products: ProductPage[];
-  };
-};
 
 export const createPages: GatsbyNode["createPages"] = async ({
   graphql,
   actions: { createPage },
 }) => {
-  // Query for markdown nodes to use in creating pages.
-  // You can query for whatever data you want to create pages for e.g.
-  // products, portfolio items, landing pages, etc.
-  // Variables can be added as the second function parameter
-
-  const result = await graphql<ProductPagesQuery>(query, {
+  const result = await graphql<any>(query, {
     limit: 1000,
   });
 
@@ -41,18 +43,15 @@ export const createPages: GatsbyNode["createPages"] = async ({
   }
 
   const component = path.resolve("./src/templates/ProductTemplatePage.tsx");
+  const { nodes } = result.data.allDataJson;
 
-  // Create blog post pages.
-  for (const { key, classId, imagePath } of result.data.broker.products) {
-    const originalName = imagePath?.split("/").at(-1);
+  // Create product pages.
+  for (const { key, ...context } of nodes) {
     createPage({
       // Path for this page — required
       path: key!,
       component,
-      context: {
-        classId,
-        originalName,
-      },
+      context,
     });
   }
 };

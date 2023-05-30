@@ -6,7 +6,7 @@ import {
   PurchaseResult,
 } from "../types/generated_types";
 import { Context } from "../types/types";
-import { getItem } from "./utils.js";
+import { getStock } from "./utils.js";
 
 const purchaseMutation = gql`
   mutation Purchase($itemId: ID!, $quantity: Int!) {
@@ -25,18 +25,15 @@ async function purchase(_, args: MutationPurchaseArgs, { db }: Context) {
     .findOne({ vendorId: { $eq: vendorId } });
 
   if (!vendor) {
-    console.log("Vendor not found");
     return "VENDOR_NOT_FOUND";
   }
 
-  const item = await getItem(vendor.url, itemId);
+  const item = await getStock(vendor.url, itemId);
   if (!item) {
-    console.log("Item not found");
     return "ITEM_NOT_FOUND";
   }
 
   if (quantity > item.stockLevel) {
-    console.log("Insufficient stock");
     return "INSUFFICIENT_STOCK";
   }
 
@@ -48,9 +45,6 @@ async function purchase(_, args: MutationPurchaseArgs, { db }: Context) {
       quantity: quantity * 1,
     }
   );
-
-  console.log(`Purchase result: ${result}`);
-
   return result.purchase;
 }
 
@@ -71,10 +65,7 @@ async function registerVendor(
     .collection("Vendor")
     .findOne({ url: { $eq: args.url } });
 
-  console.log(`Register vendor result: ${result}`);
-
   if (result) {
-    console.log("Vendor already exists");
     return false;
   }
 

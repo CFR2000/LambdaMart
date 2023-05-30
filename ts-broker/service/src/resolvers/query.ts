@@ -2,9 +2,10 @@ import {
   QueryProductArgs,
   QueryProductsArgs,
   QueryItemArgs,
+  QueryVendorsArgs,
 } from "../types/generated_types";
 import { Context } from "../types/types";
-import { getFilter, asList, getInventory, getItem } from "./utils.js";
+import { getFilter, asList, getInventory, getStock } from "./utils.js";
 
 /**
  * `product` is a resolver function that returns a single product
@@ -47,8 +48,13 @@ async function products(_, args: QueryProductsArgs, { db }: Context) {
  * @param context The context object, containing the database connection
  * @returns Vendor[]
  */
-async function vendors(_, __, { db }: Context) {
-  const vendors = await db.collection("Vendor").find({}).toArray();
+async function vendors(_, args: QueryVendorsArgs, { db }: Context) {
+  const vendorIds = getFilter("vendorId", asList(args.vendorIds));
+
+  const vendors = await db
+    .collection("Vendor")
+    .find({ ...vendorIds })
+    .toArray();
 
   return await Promise.all(
     (vendors || []).map(async (vendor) => ({
@@ -74,7 +80,7 @@ async function item(_, args: QueryItemArgs, { db }: Context) {
 
   const items = await Promise.all(
     (vendors || []).map(async (vendor) => ({
-      ...(await getItem(vendor.url, args.itemId)),
+      ...(await getStock(vendor.url, args.itemId)),
       vendorId: vendor.vendorId,
     }))
   );

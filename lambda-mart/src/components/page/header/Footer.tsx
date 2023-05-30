@@ -9,6 +9,7 @@ import {
   Stack,
   Text,
   useColorModeValue,
+  useToast,
   VisuallyHidden,
 } from "@chakra-ui/react";
 import { FaInstagram, FaTwitter, FaYoutube } from "react-icons/fa";
@@ -23,6 +24,8 @@ const SocialButton = ({
   label: string;
   href: string;
 }) => {
+  const toast = useToast();
+
   return (
     <chakra.button
       bg={useColorModeValue("blackAlpha.100", "whiteAlpha.100")}
@@ -30,6 +33,16 @@ const SocialButton = ({
       w={8}
       h={8}
       cursor={"pointer"}
+      onClick={() =>
+        toast({
+          title: "This is a demo site. Social links are disabled.",
+          description:
+            "I mean come on, you can't expect me to actually have a social media presence.",
+          status: "info",
+          duration: 9000,
+          isClosable: true,
+        })
+      }
       as={"a"}
       href={href}
       display={"inline-flex"}
@@ -53,7 +66,7 @@ const Footer = ({ copyright }: { copyright: string }) => (
   >
     <Container
       as={Stack}
-      maxW={"6xl"}
+      maxW={"7xl"}
       py={4}
       direction={{ base: "column", md: "row" }}
       spacing={4}

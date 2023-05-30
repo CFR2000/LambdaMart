@@ -13,3 +13,19 @@ export const itemRefreshQuery = gql`
     }
   }
 `;
+
+export const vendorsQuery = gql`
+  query Vendors($vendorIds: [ID!]) {
+    vendors(vendorIds: $vendorIds) {
+      vendorId
+      url
+      title
+      description
+      icon
+      inventory {
+        stockLevel
+        price
+      }
+    }
+  }
+`;

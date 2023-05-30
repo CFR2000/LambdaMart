@@ -72,12 +72,16 @@ const resolvers = {
       return new Promise((resolve, reject) => {
         // Fetch item data from the database based on ID
         db.get("SELECT * FROM inventory WHERE id = ?", [id], (err, row) => {
-          if (err) reject(err);
-          else
+          if (err) {
+            reject(err);
+          } else if (Boolean(row)) {
             resolve({
               ...row,
               stockLevel: row.stock_level,
             });
+          } else {
+            return null;
+          }
         });
       });
     },
@@ -134,7 +138,7 @@ const startApolloServer = async () => {
 
   const app = express();
   apolloServer.applyMiddleware({ app, path: "/" });
-  app.use("/static", express.static("public"));
+  app.use("/static", express.static("../static"));
 
   const port = process.env.RESOLVERS_PORT || 8084;
   app.listen(port, () => {
@@ -143,6 +147,7 @@ const startApolloServer = async () => {
 };
 
 const registerService = async (brokerUrl, params) => {
+  await new Promise(resolve => setTimeout(resolve, 5000));
   const mutation = req_gql`#graphql
     mutation Mutation(
         $vendorId: ID!

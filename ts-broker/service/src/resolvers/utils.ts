@@ -14,8 +14,8 @@ const getInventoryQuery = gql`
   }
 `;
 
-const getItemQuery = gql`
-  query GetItem($itemId: ID!) {
+const getStockQuery = gql`
+  query getStock($itemId: ID!) {
     item(id: $itemId) {
       id
       price
@@ -38,14 +38,13 @@ export async function getInventory(url: string) {
   return (data && data.vendor && data.vendor.inventory) || [];
 }
 
-export async function getItem(url: string, itemId: string | number) {
+export async function getStock(url: string, itemId: string | number) {
   try {
-    const data = await request<{ item: InventoryItem }>(url, getItemQuery, {
+    const data = await request<{ item: InventoryItem }>(url, getStockQuery, {
       itemId,
     });
     return data && data.item ? data.item : null;
   } catch (e) {
-    console.error(e);
     return null;
   }
 }

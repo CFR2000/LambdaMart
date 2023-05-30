@@ -1,5 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
-import React, { useEffect } from "react";
+import React from "react";
 import { DataTable } from "../../table/DataTable";
 import {
   Box,
@@ -12,15 +12,14 @@ import {
   Link as ChakraLink,
   Text,
   Avatar,
-  useToast,
   NumberInputProps,
   ButtonProps,
-  AvatarProps,
-  Stack,
   Flex,
 } from "@chakra-ui/react";
-import { Link, PageProps, graphql, useStaticQuery } from "gatsby";
+import { Link } from "gatsby";
 import { getTime } from "../../../utils/time";
+import { vendorsQuery } from "../../../utils/queries";
+import { gql, useQuery } from "@apollo/client";
 
 export type VendorTableType = {
   Vendor: Queries.Broker_Vendor;
@@ -81,31 +80,34 @@ const VendorList: React.FC<{
   stockLevels: Queries.Broker_InventoryItem[];
   quantity: number;
   setQuantity: (_, qty: number) => void;
-  purchaseItem: (vendor: any) => (e: any) => Promise<void>;
+  purchaseItem: (vendor: any) => void;
 }> = ({ itemId, stockLevels, quantity, setQuantity, purchaseItem }) => {
-  const data = useStaticQuery<Queries.VendorsQuery>(graphql`
-    query Vendors {
-      broker {
-        vendors {
-          icon
+  const vendorIds = stockLevels.map(({ vendorId }) => vendorId);
+
+  const { loading, error, data } = useQuery(
+    gql`
+      query VendorList($vendorIds: [ID!]!) {
+        vendors(vendorIds: $vendorIds) {
           title
-          url
           vendorId
+          icon
         }
       }
+    `,
+    {
+      variables: { vendorIds },
+      pollInterval: 5000, // we don't expect to get new vendors very often
     }
-  `);
-
-  const idToVendor = new Map(
-    data.broker.vendors.map((vendor) => [vendor.vendorId, vendor])
   );
 
   const columns = [
     columnHelper.accessor("Vendor", {
       cell: (info) => {
-        const vendor = info.getValue() as unknown as Queries.Broker_Vendor;
-        const icon = vendor.icon.replace(vendor?.vendorId, "localhost");
-        return <VendorLink key={info.cell.id} vendor={vendor} icon={icon} />;
+        if (!loading && info.getValue()) {
+          const vendor = info.getValue() as unknown as Queries.Broker_Vendor;
+          const icon = vendor.icon.replace(vendor?.vendorId, "localhost");
+          return <VendorLink key={info.cell.id} vendor={vendor} icon={icon} />;
+        }
       },
       header: "Vendor",
     }),
@@ -143,7 +145,7 @@ const VendorList: React.FC<{
       header: "Add to cart",
       cell: (info) => (
         <AddToCartButton
-          onClick={purchaseItem(info.getValue())}
+          onClick={() => purchaseItem(info.getValue())}
           key={info.cell.id}
         />
       ),
@@ -155,12 +157,25 @@ const VendorList: React.FC<{
   ];
 
   const tableData = stockLevels.map((stockLevel) => {
-    const vendor = idToVendor.get(stockLevel.vendorId);
+    // find the vendor for this stock level
+    if (!loading && data && data.vendors) {
+      console.log("data.vendors", data.vendors, "stockLevel", stockLevel);
+      const vendor = data.vendors.find(
+        (v) => v.vendorId === stockLevel.vendorId
+      );
+
+      return {
+        Vendor: vendor,
+        Stock: stockLevel.stockLevel,
+        TimeToDeliver: new Date(Date.now() + units.day * 7 * Math.random()),
+        Price: stockLevel.price,
+      };
+    }
     return {
-      Vendor: vendor,
-      Stock: stockLevel.stockLevel,
-      TimeToDeliver: new Date(Date.now() + units.day * 7 * Math.random()),
-      Price: stockLevel.price,
+      Vendor: null,
+      Stock: null,
+      TimeToDeliver: null,
+      Price: null,
     };
   });
 

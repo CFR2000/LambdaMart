@@ -1,4 +1,6 @@
-import "@fontsource/inter-tight/variable.css";
-import "@fontsource/inter-tight/variable-italic.css";
-import "@fontsource/karla/variable.css";
-import "@fontsource/karla/variable-italic.css";
+// Supports weights 100-900
+import "@fontsource-variable/inter-tight";
+import "@fontsource-variable/inter-tight/wght-italic.css";
+// Supports weights 200-800
+import "@fontsource-variable/karla";
+import "@fontsource-variable/karla/wght-italic.css";
