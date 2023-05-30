@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "type": "module",
+  "proxy": "http://broker:4000",
   "scripts": {
     "generate": "graphql-codegen --config codegen.ts",
     "compile": "npm run generate && tsc",

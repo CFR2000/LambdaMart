@@ -5,7 +5,7 @@ export const typeDef = gql`
   type Query {
     # Get vendor information
     vendor: Vendor
-    # Get a list of items, optionally filtered by vendorId and itemId
+    # Get an item, optionally filtered by vendorId and itemId
     item(id: ID!): InventoryItem
   }
 `;

@@ -99,7 +99,7 @@ const brokerUrl = process.env.BROKER_URL;
 if (brokerUrl) {
   registerService(brokerUrl, {
     vendorId: "lambda-market",
-    url: "http://lambda-market:8085/graphql",
+    url: "http://lambda-market:4000/graphql",
     title: "Lambda Market",
     description: "We sell everything in town!",
     icon: "http://localhost:8085/static/Lambda-market.png",
