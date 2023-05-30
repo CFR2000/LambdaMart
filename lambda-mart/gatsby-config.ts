@@ -27,7 +27,6 @@ const config: GatsbyConfig = {
   plugins: [
     "gatsby-plugin-emotion",
     "gatsby-plugin-image",
-    "gatsby-plugin-mdx",
     "gatsby-plugin-sharp",
     plugin("gatsby-plugin-apollo", { uri: process.env.GATSBY_BROKER_URL }),
     plugin("gatsby-plugin-manifest", { icon: "src/images/Lambda.png" }),

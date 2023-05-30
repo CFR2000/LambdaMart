@@ -1,14 +1,6 @@
 import { gql } from "graphql-request";
 
 export const typeDef = gql`
-  # Represents an item within a vendor's inventory
-  type InventoryItem {
-    vendorId: ID!
-    id: ID!
-    stockLevel: Int!
-    price: Float!
-  }
-
   # Represents a vendor that sells products through the broker
   type Vendor {
     vendorId: ID!
@@ -16,6 +8,21 @@ export const typeDef = gql`
     title: String!
     description: String!
     icon: String!
-    inventory: [InventoryItem!]!
+  }
+
+  # Represents a vendors inventory of a single item
+  type Stock {
+    id: ID!
+    stockLevel: Int!
+    price: Float!
+  }
+
+  # Represents an item within a vendor's inventory
+  type InventoryItem {
+    vendor: Vendor!
+    timeToDeliver: Int!
+    id: ID!
+    stockLevel: Int!
+    price: Float!
   }
 `;

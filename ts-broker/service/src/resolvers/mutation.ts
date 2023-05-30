@@ -76,6 +76,8 @@ async function registerVendor(
     url,
     title,
     description,
+    // random number of milliseconds between 0 and 1 month
+    timeToDeliver: Math.round(2.628e9 * Math.random()),
     icon,
   });
   return true;

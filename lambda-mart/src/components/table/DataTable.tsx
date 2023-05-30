@@ -28,7 +28,7 @@ import {
   Cell,
 } from "@tanstack/react-table";
 
-export type DataTableProps<Data extends object> = {
+export type DataTableProps<Data> = {
   data: Data[];
   columns: ColumnDef<Data, any>[];
 };

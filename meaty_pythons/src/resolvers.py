@@ -1,11 +1,8 @@
 import os
-import json
 import configparser
 import logging
 
 from ariadne import (
-    ObjectType,
-    EnumType,
     QueryType,
     MutationType,
     gql,

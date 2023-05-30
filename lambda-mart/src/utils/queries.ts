@@ -14,6 +14,24 @@ export const itemRefreshQuery = gql`
   }
 `;
 
+export const itemsStockQuery = gql`
+  query ItemsStock($itemItemId: ID!) {
+    item(itemId: $itemItemId) {
+      id
+      price
+      stockLevel
+      timeToDeliver
+      vendor {
+        description
+        icon
+        url
+        title
+        vendorId
+      }
+    }
+  }
+`;
+
 export const vendorsQuery = gql`
   query Vendors($vendorIds: [ID!]) {
     vendors(vendorIds: $vendorIds) {

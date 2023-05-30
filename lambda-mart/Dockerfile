@@ -6,13 +6,15 @@ WORKDIR /app
 COPY . .
 
 RUN npm install
-# RUN npm run build
-RUN npm run start
-# FROM nginx:latest
+RUN npm run build
 
-# COPY nginx/nginx.conf /etc/nginx/conf.d/default.conf
+# CMD ["npm", "run", "serve"]
 
-# WORKDIR /usr/share/nginx/html
-# RUN rm -rf ./*
-# COPY --from=build /app/public .
-# ENTRYPOINT ["nginx", "-g", "daemon off;"]
+FROM nginx:1.21.3-alpine
+
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+WORKDIR /usr/share/nginx/html
+RUN rm -rf ./*
+COPY --from=build /app/public .
+ENTRYPOINT ["nginx", "-g", "daemon off;"]

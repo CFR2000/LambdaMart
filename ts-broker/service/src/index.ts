@@ -7,6 +7,7 @@ import { MongoClient } from "mongodb";
 import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import { ApolloServerPluginInlineTrace } from "@apollo/server/plugin/inlineTrace";
 
 import { typeDef as Product } from "./schema/product.js";
 import { typeDef as Vendor } from "./schema/vendor.js";
@@ -35,25 +36,30 @@ const httpServer = http.createServer(app);
 const server = new ApolloServer<Context>({
   typeDefs: [Product, Vendor, QueryType, MutationType],
   resolvers: { Query, Mutation },
-  plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+  plugins: [
+    ApolloServerPluginDrainHttpServer({ httpServer }),
+    ApolloServerPluginInlineTrace(),
+  ],
 });
 
 const context = async () => ({ db: (await client.connect()).db("broker") });
 
 await server.start();
 
-app.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "YOUR-DOMAIN.TLD"); // update to match the domain you will make the request from
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept"
-  );
-  next();
-});
-
 app.use(
-  "/",
-  cors<cors.CorsRequest>(),
+  "/graphql",
+  cors<cors.CorsRequest>({
+    credentials: false,
+    methods: ["GET", "POST", "OPTIONS", "PUT", "DELETE", "PATCH", "HEAD"],
+    origin: [
+      "http://localhost:8000",
+      "https://studio.apollographql.com",
+      "http://website:8000",
+      "http://host.docker.internal:8000",
+    ],
+    allowedHeaders: ["*"],
+    exposedHeaders: ["*"],
+  }),
   bodyParser.json(),
   expressMiddleware(server, { context })
 );
@@ -62,4 +68,4 @@ await new Promise<void>((resolve) =>
   httpServer.listen({ port: 4000, host: "0.0.0.0" }, resolve)
 );
 
-console.log(`🚀 Server ready at http://0.0.0.0:4000/`);
+console.log(`🚀 Server ready at http://0.0.0.0:4000/graphql`);

@@ -7,12 +7,12 @@
   "keywords": [
     "gatsby"
   ],
-  "proxy": "http://localhost:4000",
+  "proxy": "http://localhost:4000/graphql",
   "scripts": {
     "develop": "gatsby develop",
     "start": "gatsby develop",
     "build": "gatsby build",
-    "serve": "gatsby serve",
+    "serve": "gatsby serve -H 0.0.0.0 -p 8000",
     "clean": "gatsby clean",
     "typecheck": "tsc --noEmit"
   },
@@ -27,7 +27,6 @@
     "@emotion/styled": "^11.11.0",
     "@fontsource-variable/inter-tight": "^5.0.2",
     "@fontsource-variable/karla": "^5.0.2",
-    "@mdx-js/react": "^2.3.0",
     "@tanstack/react-table": "^8.9.1",
     "dotenv": "^16.0.3",
     "framer-motion": "^10.12.16",
@@ -36,18 +35,15 @@
     "gatsby-plugin-emotion": "^8.10.0",
     "gatsby-plugin-image": "^3.10.0",
     "gatsby-plugin-manifest": "^5.10.0",
-    "gatsby-plugin-mdx": "^5.10.0",
     "gatsby-plugin-sharp": "^5.10.0",
     "gatsby-source-filesystem": "^5.10.0",
     "gatsby-source-graphql": "^5.10.0",
     "gatsby-transformer-json": "^5.10.0",
     "gatsby-transformer-sharp": "^5.10.0",
     "graphql": "^16.6.0",
-    "graphql-request": "^6.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-icons": "^4.9.0",
-    "react-svg": "^16.1.14",
     "react-use-query-param-string": "^2.0.10"
   },
   "devDependencies": {

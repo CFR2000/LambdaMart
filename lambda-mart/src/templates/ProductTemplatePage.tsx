@@ -7,8 +7,8 @@ import Hero from "../components/product/details/Hero";
 import VendorList from "../components/product/vendors/VendorList";
 import ProductBreadcrumbs from "../components/product/details/ProductBreadcrumbs";
 import Layout from "../layouts/page-layout";
-import { getStock, purchaseItem } from "../utils/requests";
-import { itemRefreshQuery } from "../utils/queries";
+import { itemRefreshQuery, itemsStockQuery } from "../utils/queries";
+import { purchaseMutation } from "../utils/mutations";
 import { gql, useMutation, useQuery } from "@apollo/client";
 
 type StockItem = { id: string | number; stockLevel: number; price: number };
@@ -28,10 +28,12 @@ const ProductTemplatePage: React.FC<PageProps<any, Queries.DataJson>> = ({
   const borderColor = useColorModeValue("gray.200", "whiteAlpha.300");
   const img = getImage(image!.childImageSharp!.gatsbyImageData);
 
-  const { loading, error, data } = useQuery(itemRefreshQuery, {
+  const { loading, error, data, refetch } = useQuery(itemsStockQuery, {
     variables: { itemId: classId },
     pollInterval: 5000,
   });
+
+  console.log(data);
 
   if (error) {
     toast({
@@ -41,17 +43,23 @@ const ProductTemplatePage: React.FC<PageProps<any, Queries.DataJson>> = ({
     });
   }
 
-  const [purchaseItem, { data: m_data, loading: m_loading, error: m_error }] =
-    useMutation(gql`
-      mutation Mutation($vendorId: ID!, $itemId: ID!, $quantity: Int!) {
-        purchase(vendorId: $vendorId, itemId: $itemId, quantity: $quantity)
-      }
-    `);
+  const [purchaseItem, { data: m_data, error: m_error }] = useMutation(
+    purchaseMutation,
+    {
+      onCompleted: (data) =>
+        toast({
+          title: "Success",
+          description: `You bought some ${className}`,
+          isClosable: true,
+          colorScheme: "primary",
+        }),
+    }
+  );
 
   if (m_error) {
     toast({
       title: "Error",
-      description: `Something went wrong while purchasing (${m_data}).`,
+      description: `Something went wrong while processing your purchase (${m_data}).`,
       status: "error",
     });
   }
@@ -79,7 +87,7 @@ const ProductTemplatePage: React.FC<PageProps<any, Queries.DataJson>> = ({
             onBuyNowClick={() =>
               toast({
                 title: "Click!",
-                description: `You bought some ${className}`,
+                description: `You clicked a button for ${className} (you didn't buy it though)`,
                 isClosable: true,
                 colorScheme: "primary",
               })
@@ -93,12 +101,10 @@ const ProductTemplatePage: React.FC<PageProps<any, Queries.DataJson>> = ({
           borderRadius="sm"
         >
           <VendorList
-            itemId={classId!}
             stockLevels={loading || !data || !data.item ? [] : data.item}
             quantity={quantity}
             setQuantity={(_, qty) => setQuantity(qty)}
             purchaseItem={(vendor) => {
-              console.log(vendor, classId, quantity);
               purchaseItem({
                 variables: {
                   vendorId: vendor.vendorId,
@@ -106,6 +112,7 @@ const ProductTemplatePage: React.FC<PageProps<any, Queries.DataJson>> = ({
                   quantity: quantity,
                 },
               });
+              refetch();
             }}
           />
         </Box>

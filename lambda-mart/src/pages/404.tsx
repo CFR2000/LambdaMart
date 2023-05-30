@@ -3,9 +3,7 @@ import React from "react";
 import { Link, HeadFC, PageProps } from "gatsby";
 import Layout from "../layouts/page-layout";
 import CallToAction from "../components/presentation/CallToAction";
-import { Box, BoxProps, Button, Icon, IconProps } from "@chakra-ui/react";
-import { StaticImage } from "gatsby-plugin-image";
-import { ReactSVG } from "react-svg";
+import { Box, BoxProps, Button, Icon } from "@chakra-ui/react";
 import styled from "@emotion/styled";
 
 const NotFoundPage: React.FC<PageProps> = () => {

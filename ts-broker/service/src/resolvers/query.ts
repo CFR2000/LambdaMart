@@ -3,9 +3,10 @@ import {
   QueryProductsArgs,
   QueryItemArgs,
   QueryVendorsArgs,
+  QueryStockArgs,
 } from "../types/generated_types";
 import { Context } from "../types/types";
-import { getFilter, asList, getInventory, getStock } from "./utils.js";
+import { getFilter, getStock, getInventory } from "./utils.js";
 
 /**
  * `product` is a resolver function that returns a single product
@@ -29,12 +30,9 @@ async function product(_, args: QueryProductArgs, { db }: Context) {
 async function products(_, args: QueryProductsArgs, { db }: Context) {
   const products = db.collection("Product");
 
-  const productType = getFilter("productType", asList(args.productTypes));
-  const coarseClassName = getFilter(
-    "coarseClassName",
-    asList(args.coarseClassNames)
-  );
-  const id = getFilter("classId", asList(args.classIds));
+  const productType = getFilter("productType", args.productTypes);
+  const coarseClassName = getFilter("coarseClassName", args.coarseClassNames);
+  const id = getFilter("classId", args.classIds);
 
   return await products
     .find({ ...productType, ...coarseClassName, ...id })
@@ -49,19 +47,23 @@ async function products(_, args: QueryProductsArgs, { db }: Context) {
  * @returns Vendor[]
  */
 async function vendors(_, args: QueryVendorsArgs, { db }: Context) {
-  const vendorIds = getFilter("vendorId", asList(args.vendorIds));
+  const vendorIds = getFilter("vendorId", args.vendorIds);
 
-  const vendors = await db
+  return await db
     .collection("Vendor")
     .find({ ...vendorIds })
     .toArray();
+}
 
-  return await Promise.all(
-    (vendors || []).map(async (vendor) => ({
-      inventory: await getInventory(vendor.url),
-      ...vendor,
-    }))
-  );
+async function stock(_, args: QueryStockArgs, { db }: Context) {
+  const vendor = await db
+    .collection("Vendor")
+    .findOne({ vendorId: { $eq: args.vendorId } }); // filter by vendorId if provided;
+
+  const items = await getInventory(vendor.url);
+
+  // filter out `null`s and `undefined`s
+  return items.filter((x) => Boolean(x.id && x.stockLevel && x.price));
 }
 
 /**
@@ -72,21 +74,33 @@ async function vendors(_, args: QueryVendorsArgs, { db }: Context) {
  * @returns InventoryItem
  */
 async function item(_, args: QueryItemArgs, { db }: Context) {
-  const vendorId = getFilter("vendorId", asList(args.vendorIds));
+  const vendorId = getFilter("vendorId", args.vendorIds);
   const vendors = await db
     .collection("Vendor")
     .find({ ...vendorId }) // filter by vendorId if provided
     .toArray();
 
+  console.log(vendors);
+
   const items = await Promise.all(
-    (vendors || []).map(async (vendor) => ({
-      ...(await getStock(vendor.url, args.itemId)),
-      vendorId: vendor.vendorId,
-    }))
+    vendors.map(async ({ timeToDeliver, ...vendor }) => {
+      const item = await getStock(vendor.url, args.itemId);
+      console.log("item", item);
+      return item !== null
+        ? {
+            vendor,
+            timeToDeliver,
+            // id: args.itemId,
+            ...item,
+          }
+        : null;
+    })
   );
 
+  console.log(items);
+
   // filter out `null`s and `undefined`s
-  return items.filter((x) => Boolean(x.id && x.stockLevel && x.price));
+  return items.filter((x) => !!x);
 }
 
-export default { product, products, vendors, item };
+export default { product, products, stock, vendors, item };

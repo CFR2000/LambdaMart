@@ -73,6 +73,7 @@ const resolvers = {
         // Fetch item data from the database based on ID
         db.get("SELECT * FROM inventory WHERE id = ?", [id], (err, row) => {
           if (err) {
+            console.log("Error fetching item from database");
             reject(err);
           } else if (Boolean(row)) {
             resolve({
@@ -80,7 +81,8 @@ const resolvers = {
               stockLevel: row.stock_level,
             });
           } else {
-            return null;
+            console.log("Item not found in database");
+            reject("Item not found");
           }
         });
       });
