@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 
 import Layout from "../layouts/page-layout";
 
@@ -26,50 +26,73 @@ const VendorCard = ({
   title,
   description,
   toast,
-}: Vendor & { toast: any }) => (
-  <Card maxW="sm">
-    <CardBody>
-      <Image src={icon} alt={`The icon for {title}`} borderRadius="lg" />
-      <Stack mt="6" spacing="3">
-        <Heading size="md">{title}</Heading>
-        <Text>{description}</Text>
-      </Stack>
-    </CardBody>
-    <Divider />
-    <CardFooter>
-      <ButtonGroup spacing="2">
-        <Button
-          variant="solid"
-          colorScheme="blue"
-          onClick={toast({
-            title: "Clicked",
-            description: "That was fun wasn't it?",
-            status: "success",
-            duration: 900,
-            isClosable: true,
-            colorScheme: "primary",
-          })}
-        >
-          Click a button?
-        </Button>
-        <Button
-          variant="ghost"
-          colorScheme="danger"
-          onClick={toast({
-            title: "WHAT DID YOU DO?!",
-            description: "You took down the website!",
-            status: "error",
-            duration: 9000,
-            isClosable: true,
-            colorScheme: "secondary",
-          })}
-        >
-          Take down website
-        </Button>
-      </ButtonGroup>
-    </CardFooter>
-  </Card>
-);
+}: Vendor & { toast: any }) => {
+  const [isLoading, setIsLoading] = useState(false);
+  return (
+    <Card maxW="sm">
+      <CardBody>
+        <Image src={icon} alt={`The icon for ${title}`} borderRadius="lg" />
+        <Stack mt="6" spacing="3">
+          <Heading size="md">{title}</Heading>
+          <Text>{description}</Text>
+        </Stack>
+      </CardBody>
+      <Divider />
+      <CardFooter>
+        <ButtonGroup spacing="2">
+          <Button
+            variant="solid"
+            colorScheme="blue"
+            onClick={() =>
+              toast({
+                title: "Clicked",
+                description: "That was fun wasn't it?",
+                status: "success",
+                duration: 900,
+                isClosable: true,
+                colorScheme: "primary",
+              })
+            }
+          >
+            Click a button?
+          </Button>
+          <Button
+            isLoading={isLoading}
+            variant="ghost"
+            colorScheme="danger"
+            onClick={() => {
+              setIsLoading(true);
+              setTimeout(() => {
+                setIsLoading(false);
+                toast({
+                  title: "WHAT DID YOU DO?!",
+                  description: "You took down the website!",
+                  status: "error",
+                  duration: 9000,
+                  isClosable: true,
+                  colorScheme: "red",
+                });
+
+                setTimeout(() => {
+                  toast({
+                    title: "Just kidding",
+                    description: "You can't take down the website\n...yet",
+                    status: "success",
+                    duration: 9000,
+                    isClosable: true,
+                    colorScheme: "secondary",
+                  });
+                }, 300);
+              }, 300);
+            }}
+          >
+            Take down website
+          </Button>
+        </ButtonGroup>
+      </CardFooter>
+    </Card>
+  );
+};
 
 const Vendors = () => {
   const { data, loading } = useQuery(
@@ -108,6 +131,7 @@ const Vendors = () => {
           data?.vendors?.map((vendor: Vendor) => (
             <SimpleGrid
               spacing={4}
+              w="100%"
               templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
             >
               <VendorCard key={vendor.vendorId} {...vendor} toast={toast} />
