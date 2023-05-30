@@ -14,8 +14,8 @@ const query = `#graphql
         imagePath {
           childImageSharp {
             gatsbyImageData(
-              width: 250
-              height: 250
+              width: 350
+              height: 350
               quality: 100
               placeholder: BLURRED
               formats: [PNG, WEBP, AUTO]

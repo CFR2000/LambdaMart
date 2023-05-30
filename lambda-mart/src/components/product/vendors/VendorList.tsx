@@ -70,6 +70,13 @@ const AddToCartButton = ({ onClick }: ButtonProps) => (
 const VendorList: React.FC<VendorListProps> = (props) => {
   const { loading, stockLevels, quantity, setQuantity, purchaseItem } = props;
 
+  const tableData = stockLevels.map((item) => ({
+    Vendor: item.vendor,
+    Stock: !loading ? `${item.stockLevel}` : undefined,
+    TimeToDeliver: new Date(item.timeToDeliver * 1000),
+    Price: item.price,
+  }));
+
   const columns = [
     columnHelper.accessor("Vendor", {
       cell: (info) => {
@@ -86,7 +93,7 @@ const VendorList: React.FC<VendorListProps> = (props) => {
       header: "Stock",
     }),
     columnHelper.accessor("TimeToDeliver", {
-      cell: (info) => getTime(info.getValue() || new Date()),
+      cell: (info) => getTime(info.getValue() || new Date(), new Date(0)),
       header: "Delivery time",
     }),
     columnHelper.accessor("Price", {
@@ -125,13 +132,6 @@ const VendorList: React.FC<VendorListProps> = (props) => {
       },
     }),
   ];
-
-  const tableData = stockLevels.map((item) => ({
-    Vendor: item.vendor,
-    Stock: !loading ? `${item.stockLevel}` : null,
-    TimeToDeliver: new Date(item.timeToDeliver),
-    Price: item.price,
-  }));
 
   return (
     <Box overflowX="scroll">

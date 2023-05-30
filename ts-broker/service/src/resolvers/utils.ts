@@ -43,7 +43,6 @@ async function _getStock(
     });
     return data && data.item ? data.item : null;
   } catch (e) {
-    console.error(e);
     return null;
   }
 }

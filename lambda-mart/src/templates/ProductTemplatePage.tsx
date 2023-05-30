@@ -38,7 +38,7 @@ const ProductTemplatePage: React.FC<PageProps<any, Queries.DataJson>> = ({
   if (error) {
     toast({
       title: "Error",
-      description: "Something went wrong.",
+      description: `Something went wrong. (${error})`,
       status: "error",
     });
   }

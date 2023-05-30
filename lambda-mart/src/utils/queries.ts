@@ -15,16 +15,16 @@ export const itemRefreshQuery = gql`
 `;
 
 export const itemsStockQuery = gql`
-  query ItemsStock($itemItemId: ID!) {
-    item(itemId: $itemItemId) {
+  query ItemsStock($itemId: ID!) {
+    item(itemId: $itemId) {
       id
+      itemId
       price
       stockLevel
       timeToDeliver
       vendor {
         description
         icon
-        url
         title
         vendorId
       }

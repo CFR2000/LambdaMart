@@ -19,9 +19,10 @@ export const typeDef = gql`
 
   # Represents an item within a vendor's inventory
   type InventoryItem {
+    id: ID!
     vendor: Vendor!
     timeToDeliver: Int!
-    id: ID!
+    itemId: ID!
     stockLevel: Int!
     price: Float!
   }

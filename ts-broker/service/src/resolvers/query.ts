@@ -80,20 +80,19 @@ async function item(_, args: QueryItemArgs, { db }: Context) {
     .find({ ...vendorId }) // filter by vendorId if provided
     .toArray();
 
-  console.log(vendors);
-
   const items = await Promise.all(
     vendors.map(async ({ timeToDeliver, ...vendor }) => {
       const item = await getStock(vendor.url, args.itemId);
-      console.log("item", item);
-      return item !== null
-        ? {
-            vendor,
-            timeToDeliver,
-            // id: args.itemId,
-            ...item,
-          }
-        : null;
+      if (item !== null) {
+        return {
+          id: `${args.itemId}-${vendor.vendorId}`, // create a unique id for each item
+          vendor,
+          timeToDeliver,
+          itemId: args.itemId,
+          stockLevel: item.stockLevel,
+          price: item.price,
+        };
+      }
     })
   );
 
