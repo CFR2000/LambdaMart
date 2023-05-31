@@ -182,7 +182,7 @@ if __name__ == "__main__":
         "http://meaty-pythons:8082/",
         "Meaty Pythons",
         "We sell the best limbless reptilian meat in town!",
-        "http://meaty-pythons:8082/static/python.png",
+        "http://localhost:8082/static/python.png",
     )
     logger.info("Starting GraphQL server")
     uvicorn.run(app, host="0.0.0.0", port=8082)

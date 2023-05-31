@@ -29,7 +29,7 @@ const VendorCard = ({
 }: Vendor & { toast: any }) => {
   const [isLoading, setIsLoading] = useState(false);
   return (
-    <Card maxW="sm">
+    <Card maxW="lg" alignItems={"center"}>
       <CardBody>
         <Image src={icon} alt={`The icon for ${title}`} borderRadius="lg" />
         <Stack mt="6" spacing="3">
@@ -59,7 +59,7 @@ const VendorCard = ({
           <Button
             isLoading={isLoading}
             variant="ghost"
-            colorScheme="danger"
+            colorScheme="red"
             onClick={() => {
               setIsLoading(true);
               setTimeout(() => {
@@ -76,14 +76,14 @@ const VendorCard = ({
                 setTimeout(() => {
                   toast({
                     title: "Just kidding",
-                    description: "You can't take down the website\n...yet",
+                    description: "You can't take down the website...yet",
                     status: "success",
                     duration: 9000,
                     isClosable: true,
                     colorScheme: "secondary",
                   });
-                }, 300);
-              }, 300);
+                }, 2000);
+              }, 4000);
             }}
           >
             Take down website
@@ -112,31 +112,26 @@ const Vendors = () => {
   );
 
   const toast = useToast();
-  toast({
-    title: "Account created.",
-    description: "We've created your account for you.",
-    status: "success",
-    duration: 9000,
-    isClosable: true,
-    colorScheme: "primary",
-  });
+
   return (
     <Layout>
       <Box maxW="7xl" mx="auto" py="md">
-        <Heading as="h1">Vendors</Heading>
+        <Heading as="h1" mt={8} mb={16}>
+          Vendors
+        </Heading>
 
         {loading ? (
           <Spinner mx="auto" h="100%" />
         ) : (
-          data?.vendors?.map((vendor: Vendor) => (
-            <SimpleGrid
-              spacing={4}
-              w="100%"
-              templateColumns="repeat(auto-fill, minmax(200px, 1fr))"
-            >
+          <SimpleGrid
+            spacing={4}
+            w="100%"
+            templateColumns="repeat(auto-fill, minmax(400px, 1fr))"
+          >
+            {data?.vendors?.map((vendor: Vendor) => (
               <VendorCard key={vendor.vendorId} {...vendor} toast={toast} />
-            </SimpleGrid>
-          ))
+            ))}
+          </SimpleGrid>
         )}
       </Box>
     </Layout>

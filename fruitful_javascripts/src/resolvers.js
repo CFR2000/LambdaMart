@@ -184,5 +184,5 @@ registerService(brokerUrl, {
   url: "http://fruitful-javascripts:8084",
   title: "Fruitful JavaScripts",
   description: "We sell the best fruits in town!",
-  icon: "http://fruitful-javascripts:8084/static/fruits.png",
+  icon: "http://localhost:8084/static/fruits.png",
 });
