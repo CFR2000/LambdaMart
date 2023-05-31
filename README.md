@@ -24,7 +24,7 @@ The report can be found in the root of the repository ([REPORT.pdf](https://gitl
 
 ## Video
 
-The video can be found [here]()
+The video can be found [here](https://youtu.be/OrFDDIKW0Dw)
 
 ## Creating a new vendor using the template
 
